@@ -1,0 +1,81 @@
+# General
+.DS_Store
+*.log
+*.tmp
+*.swp
+*.swo
+*.bak
+*.orig
+*.pid
+*.seed
+*.pid.lock
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# Node / React
+node_modules/
+.npm/
+.yarn/
+.pnpm/
+.pnp.*
+coverage/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+# React build
+build/
+dist/
+
+# React env files
+.env
+.env.*
+
+# React Native
+frontend_react_native/android/.gradle/
+frontend_react_native/android/local.properties
+frontend_react_native/android/app/build/
+frontend_react_native/android/build/
+frontend_react_native/android/captures/
+frontend_react_native/android/.idea/
+frontend_react_native/ios/Pods/
+frontend_react_native/ios/build/
+frontend_react_native/ios/DerivedData/
+frontend_react_native/ios/*.xcworkspace
+frontend_react_native/ios/*.xcodeproj/xcuserdata/
+frontend_react_native/ios/*.xcodeproj/project.xcworkspace/
+frontend_react_native/ios/*.xcodeproj/project.xcworkspace/xcuserdata/
+frontend_react_native/ios/*.xcuserstate
+frontend_react_native/ios/*.xcuserstate
+frontend_react_native/.bundle/
+frontend_react_native/.expo/
+frontend_react_native/.metro-health-check*
+frontend_react_native/metro.config.json
+
+# Android keystores
+*.keystore
+*.jks
+
+# Spring Boot / Java
+backend_spring_boot/target/
+backend_spring_boot/.classpath
+backend_spring_boot/.project
+backend_spring_boot/.settings/
+backend_spring_boot/.idea/
+backend_spring_boot/*.iml
+backend_spring_boot/out/
+
+# Gradle (if used later)
+**/.gradle/
+**/build/
+
+# Maven wrapper
+.mvn/wrapper/maven-wrapper.jar
+
