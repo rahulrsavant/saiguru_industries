@@ -1,0 +1,15 @@
+body {
+  margin: 0;
+  font-family: "Trebuchet MS", "Gill Sans", "Optima", sans-serif;
+  background: #f6f7f8;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+a {
+  color: inherit;
+}
