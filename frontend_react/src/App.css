@@ -9,7 +9,7 @@
   gap: 20px;
   align-items: center;
   padding: 14px 24px;
-  background: #0b8f82;
+  background: #b00020;
   color: #fff;
 }
 
@@ -55,7 +55,7 @@
 }
 
 .topnav a {
-  color: #e7fffb;
+  color: #fff;
   text-decoration: none;
 }
 
@@ -67,9 +67,9 @@
 }
 
 .ghost {
-  border: 1px solid #e7fffb;
+  border: 1px solid #fff;
   background: transparent;
-  color: #e7fffb;
+  color: #fff;
   padding: 6px 12px;
   border-radius: 16px;
   font-size: 12px;
@@ -147,6 +147,7 @@
   color: #4f4f4f;
   margin-top: 6px;
 }
+
 
 .panel {
   border: 1px solid #d7e9e7;
