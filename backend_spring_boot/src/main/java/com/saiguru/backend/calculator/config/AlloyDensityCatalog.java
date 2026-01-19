@@ -3,6 +3,7 @@ package com.saiguru.backend.calculator.config;
 import java.util.Map;
 
 public final class AlloyDensityCatalog {
+    private static final double LB_PER_IN3_TO_KG_PER_M3 = 27679.9047102;
     public static final Map<String, Double> DENSITIES_LB_PER_IN3 = Map.ofEntries(
         Map.entry("steel", 0.2836),
         Map.entry("aluminum_1100", 0.0975),
@@ -52,6 +53,11 @@ public final class AlloyDensityCatalog {
         Map.entry("tungsten", 0.6970),
         Map.entry("gold", 0.6990)
     );
+    public static final Map<String, Double> DENSITIES_KG_PER_M3 = DENSITIES_LB_PER_IN3.entrySet().stream()
+        .collect(java.util.stream.Collectors.toUnmodifiableMap(
+            Map.Entry::getKey,
+            entry -> entry.getValue() * LB_PER_IN3_TO_KG_PER_M3
+        ));
 
     private AlloyDensityCatalog() {
     }
