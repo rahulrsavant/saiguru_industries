@@ -1,0 +1,143 @@
+) What we need to implement (Concept / Menu Tree)
+A) Rolled Metal Products (Top menu)
+
+MetCalc’s rolled section list: Pipe, Angle, Rebar, Beam, Channel, Flat bar, Sheet, Square bar, Round bar.
+
+1) Pipe
+
+Pipe has subtypes: Round / Square / Rectangular.
+Common inputs (by dimensions):
+
+Material (metal/alloy) + density
+
+Dimensions depend on subtype:
+
+Round pipe: Outside diameter D (mm), wall thickness S (mm), length L (m)
+
+Square pipe: side a (mm), wall S (mm), length L (m)
+
+Rectangular pipe: sides a (mm), b (mm), wall S (mm), length L (m)
+Outputs:
+
+total weight (kg) and derived “per meter” style values on metcalc
+
+2) Angle
+
+Angle has: Equal leg / Unequal leg
+Inputs:
+
+Equal: leg width A, thickness t, (optionally radii if you want higher accuracy)
+
+Unequal: legs a, b, thickness S
+
+length L
+
+3) Rebar
+
+Inputs:
+
+diameter D (mm)
+
+length L (m)
+
+4) Beam
+
+Beam has multiple types (at least I-beam + T-beam).
+Inputs vary, but generally:
+
+height h, flange width b
+
+web thickness S, flange thickness t
+
+radii R/r (optional for precision)
+
+length L
+
+5) Channel
+
+Channel has: Equal / Unequal.
+Inputs:
+
+height h, flange width b
+
+thickness S and possibly t (if not equal to S)
+
+radius R
+
+length L
+
+6) Flat bar
+
+MetCalc calls it “Strip” (flat rectangular).
+Inputs:
+
+width b (mm)
+
+thickness a (mm)
+
+length L (m)
+
+7) Sheet / Plate
+
+Inputs: width a, thickness s, length (and often sheet length is another dimension)
+In practice you’ll do:
+
+thickness, width, length (3D rectangular volume)
+
+8) Square bar
+
+Inputs:
+
+side a (mm)
+
+length L (m)
+
+9) Round bar
+
+Inputs:
+
+diameter d (mm)
+
+length L (m)
+
+B) Fasteners (Top menu)
+
+Fasteners section: Bolt / Screw / Nut.
+
+1) Bolt
+
+Bolt types shown: Countersunk / Hex-head / Round-head
+Common minimal inputs (metcalc style):
+
+diameter D (mm)
+
+length L (mm)
+
+material/density
+Outputs:
+
+quantity by weight OR weight by quantity (metcalc supports both directions)
+
+2) Screw
+
+Screw types shown: Countersunk, Pan-head, Round-head, Socket screw
+Inputs:
+
+diameter D, length L
+
+material/density
+Outputs:
+
+same “qty↔weight”
+
+3) Nut
+
+Nut page indicates many nut shapes; subtypes like Hex / Flanged / Cap exist.
+Inputs vary by type, but “starter version” can begin with:
+
+thread/diameter proxy (D)
+
+across-flats / thickness (if you want better)
+
+material/density
+Outputs: qty↔weight
