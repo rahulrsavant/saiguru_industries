@@ -1,0 +1,658 @@
+{
+  "unitSystem": {
+    "lengthBase": "mm",
+    "volumeBase": "m3",
+    "densityBase": "kg/m3",
+    "weightBase": "kg"
+  },
+  "calculators": [
+    {
+      "id": "rolled_round_bar",
+      "category": "ROLLED",
+      "menuLabel": "Round bar",
+      "subtypeLabel": null,
+      "formulaKey": "ROUND_BAR",
+      "fields": [
+        {
+          "key": "diameter",
+          "label": "Diameter",
+          "unitType": "DIAMETER",
+          "allowedUnits": ["mm", "cm", "m", "in", "ft"],
+          "defaultUnit": "mm",
+          "required": true,
+          "minValue": 0.01
+        },
+        {
+          "key": "length",
+          "label": "Length",
+          "unitType": "LENGTH",
+          "allowedUnits": ["mm", "cm", "m", "in", "ft"],
+          "defaultUnit": "mm",
+          "required": true,
+          "minValue": 0.01
+        }
+      ]
+    },
+    {
+      "id": "rolled_square_bar",
+      "category": "ROLLED",
+      "menuLabel": "Square bar",
+      "subtypeLabel": null,
+      "formulaKey": "SQUARE_BAR",
+      "fields": [
+        {
+          "key": "width",
+          "label": "Side",
+          "unitType": "LENGTH",
+          "allowedUnits": ["mm", "cm", "m", "in", "ft"],
+          "defaultUnit": "mm",
+          "required": true,
+          "minValue": 0.01
+        },
+        {
+          "key": "length",
+          "label": "Length",
+          "unitType": "LENGTH",
+          "allowedUnits": ["mm", "cm", "m", "in", "ft"],
+          "defaultUnit": "mm",
+          "required": true,
+          "minValue": 0.01
+        }
+      ]
+    },
+    {
+      "id": "rolled_flat_bar",
+      "category": "ROLLED",
+      "menuLabel": "Flat bar",
+      "subtypeLabel": null,
+      "formulaKey": "FLAT_BAR",
+      "fields": [
+        {
+          "key": "width",
+          "label": "Width",
+          "unitType": "LENGTH",
+          "allowedUnits": ["mm", "cm", "m", "in", "ft"],
+          "defaultUnit": "mm",
+          "required": true,
+          "minValue": 0.01
+        },
+        {
+          "key": "thickness",
+          "label": "Thickness",
+          "unitType": "THICKNESS",
+          "allowedUnits": ["mm", "cm", "m", "in"],
+          "defaultUnit": "mm",
+          "required": true,
+          "minValue": 0.01
+        },
+        {
+          "key": "length",
+          "label": "Length",
+          "unitType": "LENGTH",
+          "allowedUnits": ["mm", "cm", "m", "in", "ft"],
+          "defaultUnit": "mm",
+          "required": true,
+          "minValue": 0.01
+        }
+      ]
+    },
+    {
+      "id": "rolled_sheet",
+      "category": "ROLLED",
+      "menuLabel": "Sheet",
+      "subtypeLabel": null,
+      "formulaKey": "SHEET",
+      "fields": [
+        {
+          "key": "thickness",
+          "label": "Thickness",
+          "unitType": "THICKNESS",
+          "allowedUnits": ["mm", "cm", "m", "in"],
+          "defaultUnit": "mm",
+          "required": true,
+          "minValue": 0.01
+        },
+        {
+          "key": "width",
+          "label": "Width",
+          "unitType": "LENGTH",
+          "allowedUnits": ["mm", "cm", "m", "in", "ft"],
+          "defaultUnit": "mm",
+          "required": true,
+          "minValue": 0.01
+        },
+        {
+          "key": "length",
+          "label": "Length",
+          "unitType": "LENGTH",
+          "allowedUnits": ["mm", "cm", "m", "in", "ft"],
+          "defaultUnit": "mm",
+          "required": true,
+          "minValue": 0.01
+        }
+      ]
+    },
+    {
+      "id": "rolled_pipe_round",
+      "category": "ROLLED",
+      "menuLabel": "Pipe",
+      "subtypeLabel": "Round",
+      "formulaKey": "PIPE_ROUND",
+      "fields": [
+        {
+          "key": "outside_diameter",
+          "label": "Outside Diameter (OD)",
+          "unitType": "DIAMETER",
+          "allowedUnits": ["mm", "cm", "m", "in"],
+          "defaultUnit": "mm",
+          "required": true,
+          "minValue": 0.01
+        },
+        {
+          "key": "wall_thickness",
+          "label": "Wall Thickness",
+          "unitType": "THICKNESS",
+          "allowedUnits": ["mm", "cm", "m", "in"],
+          "defaultUnit": "mm",
+          "required": true,
+          "minValue": 0.01
+        },
+        {
+          "key": "length",
+          "label": "Length",
+          "unitType": "LENGTH",
+          "allowedUnits": ["mm", "cm", "m", "in", "ft"],
+          "defaultUnit": "mm",
+          "required": true,
+          "minValue": 0.01
+        }
+      ]
+    },
+    {
+      "id": "rolled_pipe_square",
+      "category": "ROLLED",
+      "menuLabel": "Pipe",
+      "subtypeLabel": "Square",
+      "formulaKey": "PIPE_SQUARE",
+      "fields": [
+        {
+          "key": "outside_width",
+          "label": "Outside Width",
+          "unitType": "LENGTH",
+          "allowedUnits": ["mm", "cm", "m", "in"],
+          "defaultUnit": "mm",
+          "required": true,
+          "minValue": 0.01
+        },
+        {
+          "key": "wall_thickness",
+          "label": "Wall Thickness",
+          "unitType": "THICKNESS",
+          "allowedUnits": ["mm", "cm", "m", "in"],
+          "defaultUnit": "mm",
+          "required": true,
+          "minValue": 0.01
+        },
+        {
+          "key": "length",
+          "label": "Length",
+          "unitType": "LENGTH",
+          "allowedUnits": ["mm", "cm", "m", "in", "ft"],
+          "defaultUnit": "mm",
+          "required": true,
+          "minValue": 0.01
+        }
+      ]
+    },
+    {
+      "id": "rolled_pipe_rectangular",
+      "category": "ROLLED",
+      "menuLabel": "Pipe",
+      "subtypeLabel": "Rectangular",
+      "formulaKey": "PIPE_RECTANGULAR",
+      "fields": [
+        {
+          "key": "outside_width",
+          "label": "Outside Width",
+          "unitType": "LENGTH",
+          "allowedUnits": ["mm", "cm", "m", "in"],
+          "defaultUnit": "mm",
+          "required": true,
+          "minValue": 0.01
+        },
+        {
+          "key": "outside_height",
+          "label": "Outside Height",
+          "unitType": "LENGTH",
+          "allowedUnits": ["mm", "cm", "m", "in"],
+          "defaultUnit": "mm",
+          "required": true,
+          "minValue": 0.01
+        },
+        {
+          "key": "wall_thickness",
+          "label": "Wall Thickness",
+          "unitType": "THICKNESS",
+          "allowedUnits": ["mm", "cm", "m", "in"],
+          "defaultUnit": "mm",
+          "required": true,
+          "minValue": 0.01
+        },
+        {
+          "key": "length",
+          "label": "Length",
+          "unitType": "LENGTH",
+          "allowedUnits": ["mm", "cm", "m", "in", "ft"],
+          "defaultUnit": "mm",
+          "required": true,
+          "minValue": 0.01
+        }
+      ]
+    },
+    {
+      "id": "rolled_rebar",
+      "category": "ROLLED",
+      "menuLabel": "Rebar",
+      "subtypeLabel": null,
+      "formulaKey": "REBAR",
+      "fields": [
+        {
+          "key": "diameter",
+          "label": "Diameter",
+          "unitType": "DIAMETER",
+          "allowedUnits": ["mm", "cm", "m", "in"],
+          "defaultUnit": "mm",
+          "required": true,
+          "minValue": 0.01
+        },
+        {
+          "key": "length",
+          "label": "Length",
+          "unitType": "LENGTH",
+          "allowedUnits": ["mm", "cm", "m", "in", "ft"],
+          "defaultUnit": "mm",
+          "required": true,
+          "minValue": 0.01
+        }
+      ]
+    },
+    {
+      "id": "rolled_angle_equal",
+      "category": "ROLLED",
+      "menuLabel": "Angle",
+      "subtypeLabel": "Equal",
+      "formulaKey": "ANGLE_EQUAL",
+      "fields": [
+        {
+          "key": "leg",
+          "label": "Leg",
+          "unitType": "LENGTH",
+          "allowedUnits": ["mm", "cm", "m", "in"],
+          "defaultUnit": "mm",
+          "required": true,
+          "minValue": 0.01
+        },
+        {
+          "key": "thickness",
+          "label": "Thickness",
+          "unitType": "THICKNESS",
+          "allowedUnits": ["mm", "cm", "m", "in"],
+          "defaultUnit": "mm",
+          "required": true,
+          "minValue": 0.01
+        },
+        {
+          "key": "length",
+          "label": "Length",
+          "unitType": "LENGTH",
+          "allowedUnits": ["mm", "cm", "m", "in", "ft"],
+          "defaultUnit": "mm",
+          "required": true,
+          "minValue": 0.01
+        }
+      ]
+    },
+    {
+      "id": "rolled_angle_unequal",
+      "category": "ROLLED",
+      "menuLabel": "Angle",
+      "subtypeLabel": "Unequal",
+      "formulaKey": "ANGLE_UNEQUAL",
+      "fields": [
+        {
+          "key": "leg_a",
+          "label": "Leg A",
+          "unitType": "LENGTH",
+          "allowedUnits": ["mm", "cm", "m", "in"],
+          "defaultUnit": "mm",
+          "required": true,
+          "minValue": 0.01
+        },
+        {
+          "key": "leg_b",
+          "label": "Leg B",
+          "unitType": "LENGTH",
+          "allowedUnits": ["mm", "cm", "m", "in"],
+          "defaultUnit": "mm",
+          "required": true,
+          "minValue": 0.01
+        },
+        {
+          "key": "thickness",
+          "label": "Thickness",
+          "unitType": "THICKNESS",
+          "allowedUnits": ["mm", "cm", "m", "in"],
+          "defaultUnit": "mm",
+          "required": true,
+          "minValue": 0.01
+        },
+        {
+          "key": "length",
+          "label": "Length",
+          "unitType": "LENGTH",
+          "allowedUnits": ["mm", "cm", "m", "in", "ft"],
+          "defaultUnit": "mm",
+          "required": true,
+          "minValue": 0.01
+        }
+      ]
+    },
+    {
+      "id": "rolled_channel_c",
+      "category": "ROLLED",
+      "menuLabel": "Channel",
+      "subtypeLabel": "C",
+      "formulaKey": "CHANNEL_C",
+      "fields": [
+        {
+          "key": "height",
+          "label": "Height",
+          "unitType": "LENGTH",
+          "allowedUnits": ["mm", "cm", "m", "in"],
+          "defaultUnit": "mm",
+          "required": true,
+          "minValue": 0.01
+        },
+        {
+          "key": "flange_width",
+          "label": "Flange Width",
+          "unitType": "LENGTH",
+          "allowedUnits": ["mm", "cm", "m", "in"],
+          "defaultUnit": "mm",
+          "required": true,
+          "minValue": 0.01
+        },
+        {
+          "key": "web_thickness",
+          "label": "Web Thickness",
+          "unitType": "THICKNESS",
+          "allowedUnits": ["mm", "cm", "m", "in"],
+          "defaultUnit": "mm",
+          "required": true,
+          "minValue": 0.01
+        },
+        {
+          "key": "flange_thickness",
+          "label": "Flange Thickness",
+          "unitType": "THICKNESS",
+          "allowedUnits": ["mm", "cm", "m", "in"],
+          "defaultUnit": "mm",
+          "required": true,
+          "minValue": 0.01
+        },
+        {
+          "key": "length",
+          "label": "Length",
+          "unitType": "LENGTH",
+          "allowedUnits": ["mm", "cm", "m", "in", "ft"],
+          "defaultUnit": "mm",
+          "required": true,
+          "minValue": 0.01
+        }
+      ]
+    },
+    {
+      "id": "rolled_channel_u",
+      "category": "ROLLED",
+      "menuLabel": "Channel",
+      "subtypeLabel": "U",
+      "formulaKey": "CHANNEL_U",
+      "fields": [
+        {
+          "key": "height",
+          "label": "Height",
+          "unitType": "LENGTH",
+          "allowedUnits": ["mm", "cm", "m", "in"],
+          "defaultUnit": "mm",
+          "required": true,
+          "minValue": 0.01
+        },
+        {
+          "key": "flange_width",
+          "label": "Flange Width",
+          "unitType": "LENGTH",
+          "allowedUnits": ["mm", "cm", "m", "in"],
+          "defaultUnit": "mm",
+          "required": true,
+          "minValue": 0.01
+        },
+        {
+          "key": "web_thickness",
+          "label": "Web Thickness",
+          "unitType": "THICKNESS",
+          "allowedUnits": ["mm", "cm", "m", "in"],
+          "defaultUnit": "mm",
+          "required": true,
+          "minValue": 0.01
+        },
+        {
+          "key": "flange_thickness",
+          "label": "Flange Thickness",
+          "unitType": "THICKNESS",
+          "allowedUnits": ["mm", "cm", "m", "in"],
+          "defaultUnit": "mm",
+          "required": true,
+          "minValue": 0.01
+        },
+        {
+          "key": "length",
+          "label": "Length",
+          "unitType": "LENGTH",
+          "allowedUnits": ["mm", "cm", "m", "in", "ft"],
+          "defaultUnit": "mm",
+          "required": true,
+          "minValue": 0.01
+        }
+      ]
+    },
+    {
+      "id": "rolled_beam_i",
+      "category": "ROLLED",
+      "menuLabel": "Beam",
+      "subtypeLabel": "I",
+      "formulaKey": "BEAM_I",
+      "fields": [
+        {
+          "key": "height",
+          "label": "Height",
+          "unitType": "LENGTH",
+          "allowedUnits": ["mm", "cm", "m", "in"],
+          "defaultUnit": "mm",
+          "required": true,
+          "minValue": 0.01
+        },
+        {
+          "key": "flange_width",
+          "label": "Flange Width",
+          "unitType": "LENGTH",
+          "allowedUnits": ["mm", "cm", "m", "in"],
+          "defaultUnit": "mm",
+          "required": true,
+          "minValue": 0.01
+        },
+        {
+          "key": "web_thickness",
+          "label": "Web Thickness",
+          "unitType": "THICKNESS",
+          "allowedUnits": ["mm", "cm", "m", "in"],
+          "defaultUnit": "mm",
+          "required": true,
+          "minValue": 0.01
+        },
+        {
+          "key": "flange_thickness",
+          "label": "Flange Thickness",
+          "unitType": "THICKNESS",
+          "allowedUnits": ["mm", "cm", "m", "in"],
+          "defaultUnit": "mm",
+          "required": true,
+          "minValue": 0.01
+        },
+        {
+          "key": "length",
+          "label": "Length",
+          "unitType": "LENGTH",
+          "allowedUnits": ["mm", "cm", "m", "in", "ft"],
+          "defaultUnit": "mm",
+          "required": true,
+          "minValue": 0.01
+        }
+      ]
+    },
+    {
+      "id": "rolled_beam_t",
+      "category": "ROLLED",
+      "menuLabel": "Beam",
+      "subtypeLabel": "T",
+      "formulaKey": "BEAM_T",
+      "fields": [
+        {
+          "key": "height",
+          "label": "Height",
+          "unitType": "LENGTH",
+          "allowedUnits": ["mm", "cm", "m", "in"],
+          "defaultUnit": "mm",
+          "required": true,
+          "minValue": 0.01
+        },
+        {
+          "key": "flange_width",
+          "label": "Flange Width",
+          "unitType": "LENGTH",
+          "allowedUnits": ["mm", "cm", "m", "in"],
+          "defaultUnit": "mm",
+          "required": true,
+          "minValue": 0.01
+        },
+        {
+          "key": "web_thickness",
+          "label": "Web Thickness",
+          "unitType": "THICKNESS",
+          "allowedUnits": ["mm", "cm", "m", "in"],
+          "defaultUnit": "mm",
+          "required": true,
+          "minValue": 0.01
+        },
+        {
+          "key": "flange_thickness",
+          "label": "Flange Thickness",
+          "unitType": "THICKNESS",
+          "allowedUnits": ["mm", "cm", "m", "in"],
+          "defaultUnit": "mm",
+          "required": true,
+          "minValue": 0.01
+        },
+        {
+          "key": "length",
+          "label": "Length",
+          "unitType": "LENGTH",
+          "allowedUnits": ["mm", "cm", "m", "in", "ft"],
+          "defaultUnit": "mm",
+          "required": true,
+          "minValue": 0.01
+        }
+      ]
+    },
+    {
+      "id": "fastener_bolt_hex",
+      "category": "FASTENERS",
+      "menuLabel": "Bolt",
+      "subtypeLabel": "Hex",
+      "formulaKey": "BOLT_HEX",
+      "fields": [
+        {
+          "key": "diameter",
+          "label": "Diameter",
+          "unitType": "DIAMETER",
+          "allowedUnits": ["mm", "cm", "m", "in"],
+          "defaultUnit": "mm",
+          "required": true,
+          "minValue": 0.01
+        },
+        {
+          "key": "length",
+          "label": "Length",
+          "unitType": "LENGTH",
+          "allowedUnits": ["mm", "cm", "m", "in", "ft"],
+          "defaultUnit": "mm",
+          "required": true,
+          "minValue": 0.01
+        }
+      ]
+    },
+    {
+      "id": "fastener_screw_machine",
+      "category": "FASTENERS",
+      "menuLabel": "Screw",
+      "subtypeLabel": "Machine",
+      "formulaKey": "SCREW_MACHINE",
+      "fields": [
+        {
+          "key": "diameter",
+          "label": "Diameter",
+          "unitType": "DIAMETER",
+          "allowedUnits": ["mm", "cm", "m", "in"],
+          "defaultUnit": "mm",
+          "required": true,
+          "minValue": 0.01
+        },
+        {
+          "key": "length",
+          "label": "Length",
+          "unitType": "LENGTH",
+          "allowedUnits": ["mm", "cm", "m", "in", "ft"],
+          "defaultUnit": "mm",
+          "required": true,
+          "minValue": 0.01
+        }
+      ]
+    },
+    {
+      "id": "fastener_nut_hex",
+      "category": "FASTENERS",
+      "menuLabel": "Nut",
+      "subtypeLabel": "Hex",
+      "formulaKey": "NUT_HEX",
+      "fields": [
+        {
+          "key": "diameter",
+          "label": "Diameter",
+          "unitType": "DIAMETER",
+          "allowedUnits": ["mm", "cm", "m", "in"],
+          "defaultUnit": "mm",
+          "required": true,
+          "minValue": 0.01
+        },
+        {
+          "key": "thickness",
+          "label": "Thickness",
+          "unitType": "THICKNESS",
+          "allowedUnits": ["mm", "cm", "m", "in"],
+          "defaultUnit": "mm",
+          "required": true,
+          "minValue": 0.01
+        }
+      ]
+    }
+  ]
+}

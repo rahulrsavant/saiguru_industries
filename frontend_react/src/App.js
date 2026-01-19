@@ -1,50 +1,141 @@
 import { useEffect, useMemo, useState } from 'react';
 import './App.css';
-import {
-  ALLOY_OPTIONS,
-  DEFAULT_ALLOY,
-  DEFAULT_PIECES,
-  DEFAULT_SHAPE,
-  SHAPE_OPTIONS,
-  UNIT_OPTIONS,
-} from './data/metalCalculatorConfig';
+import { ALLOY_OPTIONS, DEFAULT_ALLOY, DEFAULT_QUANTITY } from './data/metalCalculatorConfig';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8080';
+const MENU_ORDER = [
+  'Pipe',
+  'Angle',
+  'Rebar',
+  'Beam',
+  'Channel',
+  'Flat bar',
+  'Sheet',
+  'Square bar',
+  'Round bar',
+  'Bolt',
+  'Screw',
+  'Nut',
+];
 
 const parseNumber = (value) => {
   if (value === '' || value === null || value === undefined) return NaN;
   return Number.parseFloat(String(value).replace(',', '.'));
 };
 
-const buildDimensionState = (shapeValue) => {
-  const shape = SHAPE_OPTIONS.find((option) => option.value === shapeValue);
-  if (!shape) return {};
-  return shape.fields.reduce((accumulator, field) => {
-    accumulator[field.key] = { value: '', unit: field.defaultUnit };
+const buildDimensionState = (calculator) => {
+  if (!calculator) return {};
+  return calculator.fields.reduce((accumulator, field) => {
+    accumulator[field.key] = { value: '', unit: field.defaultUnit || field.allowedUnits?.[0] || 'mm' };
     return accumulator;
   }, {});
 };
 
+const FieldInput = ({ field, value, unit, error, onValueChange, onUnitChange }) => (
+  <label className={`dimension-field ${error ? 'has-error' : ''}`}>
+    {field.label}
+    <div className="input-unit">
+      <input
+        type="text"
+        inputMode="decimal"
+        value={value}
+        onChange={(event) => onValueChange(event.target.value)}
+      />
+      <select value={unit} onChange={(event) => onUnitChange(event.target.value)}>
+        {field.allowedUnits.map((allowedUnit) => (
+          <option key={allowedUnit} value={allowedUnit}>
+            {allowedUnit}
+          </option>
+        ))}
+      </select>
+    </div>
+    {error ? <span className="field-error">{error}</span> : null}
+  </label>
+);
+
 function App() {
+  const [catalog, setCatalog] = useState(null);
+  const [catalogError, setCatalogError] = useState('');
   const [alloy, setAlloy] = useState(DEFAULT_ALLOY);
-  const [shape, setShape] = useState(DEFAULT_SHAPE);
-  const [pieces, setPieces] = useState(DEFAULT_PIECES);
-  const [dimensions, setDimensions] = useState(() => buildDimensionState(DEFAULT_SHAPE));
+  const [activeCalculatorId, setActiveCalculatorId] = useState('');
+  const [activeMenuLabel, setActiveMenuLabel] = useState('');
+  const [piecesOrQty, setPiecesOrQty] = useState(DEFAULT_QUANTITY);
+  const [mode, setMode] = useState('QTY_TO_WEIGHT');
+  const [dimensions, setDimensions] = useState({});
+  const [fieldErrors, setFieldErrors] = useState({});
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [debugEnabled, setDebugEnabled] = useState(false);
 
-  const activeShape = useMemo(
-    () => SHAPE_OPTIONS.find((option) => option.value === shape),
-    [shape]
-  );
+  useEffect(() => {
+    const fetchCatalog = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/catalog`);
+        if (!response.ok) {
+          throw new Error('Unable to load catalog.');
+        }
+        const data = await response.json();
+        setCatalog(data);
+      } catch (fetchError) {
+        setCatalogError(fetchError.message || 'Unable to load catalog.');
+      }
+    };
+
+    fetchCatalog();
+  }, []);
+
+  const menuItems = useMemo(() => {
+    if (!catalog?.calculators) return [];
+    const map = new Map();
+    catalog.calculators.forEach((calculator) => {
+      if (!map.has(calculator.menuLabel)) {
+        map.set(calculator.menuLabel, {
+          menuLabel: calculator.menuLabel,
+          category: calculator.category,
+          calculators: [],
+        });
+      }
+      map.get(calculator.menuLabel).calculators.push(calculator);
+    });
+
+    const items = Array.from(map.values());
+    items.forEach((item) => {
+      item.calculators.sort((a, b) => (a.subtypeLabel || '').localeCompare(b.subtypeLabel || ''));
+    });
+    items.sort((a, b) => {
+      const indexA = MENU_ORDER.indexOf(a.menuLabel);
+      const indexB = MENU_ORDER.indexOf(b.menuLabel);
+      const safeIndexA = indexA === -1 ? Number.MAX_SAFE_INTEGER : indexA;
+      const safeIndexB = indexB === -1 ? Number.MAX_SAFE_INTEGER : indexB;
+      return safeIndexA - safeIndexB;
+    });
+    return items;
+  }, [catalog]);
+
+  const activeCalculator = useMemo(() => {
+    if (!catalog?.calculators) return null;
+    return catalog.calculators.find((calculator) => calculator.id === activeCalculatorId) || null;
+  }, [catalog, activeCalculatorId]);
 
   useEffect(() => {
-    setDimensions(buildDimensionState(shape));
+    if (!menuItems.length) return;
+    if (!activeCalculatorId) {
+      const defaultMenu = menuItems[0];
+      setActiveMenuLabel(defaultMenu.menuLabel);
+      setActiveCalculatorId(defaultMenu.calculators[0].id);
+    }
+  }, [menuItems, activeCalculatorId]);
+
+  useEffect(() => {
+    setDimensions(buildDimensionState(activeCalculator));
+    setFieldErrors({});
     setResult(null);
     setError('');
-  }, [shape]);
+    if (activeCalculator?.category !== 'FASTENERS') {
+      setMode('QTY_TO_WEIGHT');
+    }
+  }, [activeCalculator]);
 
   const updateDimensionValue = (key, value) => {
     setDimensions((prev) => ({
@@ -67,32 +158,50 @@ function App() {
   };
 
   const validateForm = () => {
-    if (!Number.isInteger(Number(pieces)) || Number(pieces) < 1) {
-      return 'Number of pieces must be a positive integer.';
+    if (!activeCalculator) {
+      return { message: 'Select a calculator.', fieldErrors: {} };
     }
 
-    if (!activeShape) {
-      return 'Select a valid shape.';
-    }
-
-    for (const field of activeShape.fields) {
+    const nextFieldErrors = {};
+    activeCalculator.fields.forEach((field) => {
       const entry = dimensions[field.key];
-      if (!entry) {
-        return `${field.label} is required.`;
+      if (!entry || entry.value === '') {
+        if (field.required) {
+          nextFieldErrors[field.key] = `${field.label} is required.`;
+        }
+        return;
       }
       const numericValue = parseNumber(entry.value);
       if (!Number.isFinite(numericValue) || numericValue <= 0) {
-        return `${field.label} must be a positive number.`;
+        nextFieldErrors[field.key] = `${field.label} must be a positive number.`;
+        return;
       }
+      if (field.minValue && numericValue < field.minValue) {
+        nextFieldErrors[field.key] = `${field.label} must be at least ${field.minValue}.`;
+      }
+    });
+
+    const qtyValue = parseNumber(piecesOrQty);
+    if (!Number.isFinite(qtyValue) || qtyValue <= 0) {
+      return { message: 'Quantity or weight must be greater than zero.', fieldErrors: nextFieldErrors };
     }
 
-    return '';
+    if (mode === 'QTY_TO_WEIGHT' && !Number.isInteger(qtyValue)) {
+      return { message: 'Quantity must be a positive integer.', fieldErrors: nextFieldErrors };
+    }
+
+    if (Object.keys(nextFieldErrors).length > 0) {
+      return { message: 'Fix the highlighted fields.', fieldErrors: nextFieldErrors };
+    }
+
+    return { message: '', fieldErrors: {} };
   };
 
   const handleCalculate = async () => {
-    const validationError = validateForm();
-    if (validationError) {
-      setError(validationError);
+    const validation = validateForm();
+    setFieldErrors(validation.fieldErrors);
+    if (validation.message) {
+      setError(validation.message);
       setResult(null);
       return;
     }
@@ -102,18 +211,19 @@ function App() {
 
     try {
       const payload = {
-        alloy,
-        shape,
-        pieces: Number(pieces),
+        calculatorId: activeCalculator.id,
+        materialId: alloy,
+        piecesOrQty: parseNumber(piecesOrQty),
+        mode,
         debug: debugEnabled,
-        dimensions: activeShape.fields.map((field) => ({
+        dimensions: activeCalculator.fields.map((field) => ({
           key: field.key,
           value: parseNumber(dimensions[field.key].value),
           unit: dimensions[field.key].unit,
         })),
       };
 
-      const response = await fetch(`${API_BASE_URL}/api/weight/calculate`, {
+      const response = await fetch(`${API_BASE_URL}/api/calculate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -136,12 +246,27 @@ function App() {
 
   const handleReset = () => {
     setAlloy(DEFAULT_ALLOY);
-    setShape(DEFAULT_SHAPE);
-    setPieces(DEFAULT_PIECES);
-    setDimensions(buildDimensionState(DEFAULT_SHAPE));
+    setPiecesOrQty(DEFAULT_QUANTITY);
+    setDimensions(buildDimensionState(activeCalculator));
+    setFieldErrors({});
     setResult(null);
     setError('');
   };
+
+  const handleMenuSelect = (menuLabel) => {
+    setActiveMenuLabel(menuLabel);
+    const menu = menuItems.find((item) => item.menuLabel === menuLabel);
+    if (menu) {
+      setActiveCalculatorId(menu.calculators[0].id);
+    }
+  };
+
+  const isFasteners = activeCalculator?.category === 'FASTENERS';
+  const isWeightToQty = mode === 'WEIGHT_TO_QTY';
+
+  if (catalogError) {
+    return <div className="app"><div className="error-box">{catalogError}</div></div>;
+  }
 
   return (
     <div className="app">
@@ -167,10 +292,39 @@ function App() {
         <section className="calculator-card">
           <div className="calculator-header">
             <h1>Metal Weight Calculator</h1>
-            <p>Calculate weight in pounds for common metal shapes with unit-by-unit conversions.</p>
+            <p>Calculate weight using catalog-driven calculators with precise unit conversions.</p>
           </div>
 
-          <div className="calculator-grid">
+          <div className="calculator-grid catalog-layout">
+            <aside className="menu-panel">
+              <div className="menu-title">Catalog</div>
+              {menuItems.map((menu) => (
+                <div key={menu.menuLabel} className="menu-group">
+                  <button
+                    type="button"
+                    className={`menu-item ${activeMenuLabel === menu.menuLabel ? 'active' : ''}`}
+                    onClick={() => handleMenuSelect(menu.menuLabel)}
+                  >
+                    {menu.menuLabel}
+                  </button>
+                  {activeMenuLabel === menu.menuLabel && menu.calculators.length > 1 ? (
+                    <div className="submenu">
+                      {menu.calculators.map((calculator) => (
+                        <button
+                          key={calculator.id}
+                          type="button"
+                          className={`submenu-item ${activeCalculatorId === calculator.id ? 'active' : ''}`}
+                          onClick={() => setActiveCalculatorId(calculator.id)}
+                        >
+                          {calculator.subtypeLabel || calculator.menuLabel}
+                        </button>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
+              ))}
+            </aside>
+
             <div className="form-section">
               <div className="field-row">
                 <label>
@@ -184,54 +338,78 @@ function App() {
                   </select>
                 </label>
                 <label>
-                  Shape
-                  <select value={shape} onChange={(event) => setShape(event.target.value)}>
-                    {SHAPE_OPTIONS.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
+                  Calculator
+                  <select
+                    value={activeCalculatorId}
+                    onChange={(event) => {
+                      const nextId = event.target.value;
+                      const nextCalculator = catalog?.calculators?.find((entry) => entry.id === nextId);
+                      if (nextCalculator) {
+                        setActiveMenuLabel(nextCalculator.menuLabel);
+                      }
+                      setActiveCalculatorId(nextId);
+                    }}
+                  >
+                    {catalog?.calculators?.map((calculator) => (
+                      <option key={calculator.id} value={calculator.id}>
+                        {calculator.menuLabel} {calculator.subtypeLabel ? `- ${calculator.subtypeLabel}` : ''}
                       </option>
                     ))}
                   </select>
                 </label>
               </div>
 
+              {isFasteners ? (
+                <div className="mode-toggle">
+                  <span>Mode</span>
+                  <label>
+                    <input
+                      type="radio"
+                      name="mode"
+                      value="QTY_TO_WEIGHT"
+                      checked={mode === 'QTY_TO_WEIGHT'}
+                      onChange={() => setMode('QTY_TO_WEIGHT')}
+                    />
+                    Quantity → Weight
+                  </label>
+                  <label>
+                    <input
+                      type="radio"
+                      name="mode"
+                      value="WEIGHT_TO_QTY"
+                      checked={mode === 'WEIGHT_TO_QTY'}
+                      onChange={() => setMode('WEIGHT_TO_QTY')}
+                    />
+                    Weight → Quantity
+                  </label>
+                </div>
+              ) : null}
+
               <div className="field-row">
                 <label>
-                  Number of Pieces
+                  {isWeightToQty ? 'Total Weight (kg)' : 'Quantity'}
                   <input
                     type="number"
-                    min="1"
+                    min="0"
                     step="1"
-                    value={pieces}
-                    onChange={(event) => setPieces(event.target.value)}
+                    value={piecesOrQty}
+                    onChange={(event) => setPiecesOrQty(event.target.value)}
                   />
                 </label>
               </div>
 
               <div className="dimension-section">
                 <div className="dimension-title">Dimensions</div>
-                {activeShape?.fields.map((field) => (
-                  <label key={field.key} className="dimension-field">
-                    {field.label}
-                    <div className="input-unit">
-                      <input
-                        type="text"
-                        inputMode="decimal"
-                        value={dimensions[field.key]?.value ?? ''}
-                        onChange={(event) => updateDimensionValue(field.key, event.target.value)}
-                      />
-                      <select
-                        value={dimensions[field.key]?.unit ?? field.defaultUnit}
-                        onChange={(event) => updateDimensionUnit(field.key, event.target.value)}
-                      >
-                        {UNIT_OPTIONS.map((option) => (
-                          <option key={option.value} value={option.value}>
-                            {option.label}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </label>
+                {activeCalculator?.fields.map((field) => (
+                  <FieldInput
+                    key={field.key}
+                    field={field}
+                    value={dimensions[field.key]?.value ?? ''}
+                    unit={dimensions[field.key]?.unit ?? field.defaultUnit}
+                    error={fieldErrors[field.key]}
+                    onValueChange={(value) => updateDimensionValue(field.key, value)}
+                    onUnitChange={(unit) => updateDimensionUnit(field.key, unit)}
+                  />
                 ))}
               </div>
 
@@ -258,28 +436,32 @@ function App() {
 
             <div className="result-section">
               <div className="result-card">
-                <div className="result-label">Calculated Weight</div>
+                <div className="result-label">{isWeightToQty ? 'Estimated Quantity' : 'Calculated Weight'}</div>
                 <div className="result-value">
-                  {result?.weightLbs ? result.weightLbs.toFixed(4) : '0.0000'} lbs
+                  {isWeightToQty
+                    ? `${result?.quantity ? result.quantity.toFixed(4) : '0.0000'} pcs`
+                    : `${result?.weightKg ? result.weightKg.toFixed(4) : '0.0000'} kg`}
                 </div>
                 <div className="result-meta">
-                  {activeShape ? `Shape: ${activeShape.label}` : 'Select a shape'}
+                  {activeCalculator
+                    ? `Calculator: ${activeCalculator.menuLabel}`
+                    : 'Select a calculator'}
                 </div>
               </div>
 
               <div className="result-details">
                 <div>
                   <span>Volume</span>
-                  <strong>{result?.volumeIn3 ? result.volumeIn3.toFixed(4) : '0.0000'} in³</strong>
+                  <strong>{result?.volumeM3 ? result.volumeM3.toFixed(4) : '0.0000'} m³</strong>
                 </div>
                 <div>
-                  <span>Pieces</span>
-                  <strong>{pieces || DEFAULT_PIECES}</strong>
+                  <span>{isWeightToQty ? 'Input Weight' : 'Quantity'}</span>
+                  <strong>{piecesOrQty || DEFAULT_QUANTITY}</strong>
                 </div>
               </div>
 
               <div className="result-note">
-                Units are converted to inches internally with high precision. Final values are rounded to 4 decimals.
+                Units are normalized to millimeters internally. Final values are rounded for display.
               </div>
 
               {debugEnabled && result ? (
@@ -287,27 +469,27 @@ function App() {
                   <div className="debug-title">Debug details</div>
                   <div className="debug-grid">
                     <div>
-                      <span>Density (lb/in³)</span>
-                      <strong>{result.densityUsedLbPerIn3 ?? 'N/A'}</strong>
+                      <span>Density (kg/m³)</span>
+                      <strong>{result.densityKgM3 ?? 'N/A'}</strong>
                     </div>
                     <div>
-                      <span>Raw Volume (in³)</span>
-                      <strong>{result.volumeIn3Raw ?? 'N/A'}</strong>
+                      <span>Raw Volume (m³)</span>
+                      <strong>{result.volumeM3Raw ?? 'N/A'}</strong>
                     </div>
                     <div>
-                      <span>Raw Weight (lbs)</span>
-                      <strong>{result.weightLbsRaw ?? 'N/A'}</strong>
+                      <span>Raw Weight (kg)</span>
+                      <strong>{result.weightKgRaw ?? 'N/A'}</strong>
                     </div>
                     <div>
-                      <span>Pieces</span>
-                      <strong>{result.pieces ?? pieces}</strong>
+                      <span>Raw Quantity</span>
+                      <strong>{result.quantityRaw ?? piecesOrQty}</strong>
                     </div>
                   </div>
                   <div className="debug-dims">
-                    <div className="debug-title">Normalized Dimensions (in)</div>
-                    {result.normalizedDimensionsInInches ? (
+                    <div className="debug-title">Normalized Dimensions (mm)</div>
+                    {result.normalizedDimensionsMm ? (
                       <ul>
-                        {Object.entries(result.normalizedDimensionsInInches).map(([key, value]) => (
+                        {Object.entries(result.normalizedDimensionsMm).map(([key, value]) => (
                           <li key={key}>{`${key}: ${value}`}</li>
                         ))}
                       </ul>
