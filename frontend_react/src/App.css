@@ -257,6 +257,47 @@ select {
   color: #6b6b6b;
 }
 
+.debug-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #4a4a4a;
+}
+
+.debug-section {
+  border: 1px dashed #cbd5d6;
+  border-radius: 8px;
+  padding: 14px;
+  font-size: 12px;
+  color: #3f3f3f;
+  background: #fafcfc;
+}
+
+.debug-title {
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.debug-grid {
+  display: grid;
+  gap: 8px;
+}
+
+.debug-grid div {
+  display: flex;
+  justify-content: space-between;
+}
+
+.debug-dims ul {
+  margin: 8px 0 0;
+  padding-left: 16px;
+}
+
+.debug-empty {
+  color: #6b6b6b;
+}
+
 @media (max-width: 900px) {
   .calculator-grid {
     grid-template-columns: 1fr;

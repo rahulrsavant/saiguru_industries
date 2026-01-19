@@ -33,6 +33,7 @@ function App() {
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [debugEnabled, setDebugEnabled] = useState(false);
 
   const activeShape = useMemo(
     () => SHAPE_OPTIONS.find((option) => option.value === shape),
@@ -104,6 +105,7 @@ function App() {
         alloy,
         shape,
         pieces: Number(pieces),
+        debug: debugEnabled,
         dimensions: activeShape.fields.map((field) => ({
           key: field.key,
           value: parseNumber(dimensions[field.key].value),
@@ -235,6 +237,15 @@ function App() {
 
               {error ? <div className="error-box">{error}</div> : null}
 
+              <label className="debug-toggle">
+                <input
+                  type="checkbox"
+                  checked={debugEnabled}
+                  onChange={(event) => setDebugEnabled(event.target.checked)}
+                />
+                Enable debug output
+              </label>
+
               <div className="action-row">
                 <button type="button" className="primary" onClick={handleCalculate} disabled={isSubmitting}>
                   {isSubmitting ? 'Calculating...' : 'Calculate'}
@@ -249,7 +260,7 @@ function App() {
               <div className="result-card">
                 <div className="result-label">Calculated Weight</div>
                 <div className="result-value">
-                  {result?.weightLbs ? result.weightLbs.toFixed(3) : '0.000'} lbs
+                  {result?.weightLbs ? result.weightLbs.toFixed(4) : '0.0000'} lbs
                 </div>
                 <div className="result-meta">
                   {activeShape ? `Shape: ${activeShape.label}` : 'Select a shape'}
@@ -259,7 +270,7 @@ function App() {
               <div className="result-details">
                 <div>
                   <span>Volume</span>
-                  <strong>{result?.volumeIn3 ? result.volumeIn3.toFixed(3) : '0.000'} in³</strong>
+                  <strong>{result?.volumeIn3 ? result.volumeIn3.toFixed(4) : '0.0000'} in³</strong>
                 </div>
                 <div>
                   <span>Pieces</span>
@@ -268,8 +279,44 @@ function App() {
               </div>
 
               <div className="result-note">
-                Units are converted to inches internally with high precision. Final values are rounded to 3 decimals.
+                Units are converted to inches internally with high precision. Final values are rounded to 4 decimals.
               </div>
+
+              {debugEnabled && result ? (
+                <div className="debug-section">
+                  <div className="debug-title">Debug details</div>
+                  <div className="debug-grid">
+                    <div>
+                      <span>Density (lb/in³)</span>
+                      <strong>{result.densityUsedLbPerIn3 ?? 'N/A'}</strong>
+                    </div>
+                    <div>
+                      <span>Raw Volume (in³)</span>
+                      <strong>{result.volumeIn3Raw ?? 'N/A'}</strong>
+                    </div>
+                    <div>
+                      <span>Raw Weight (lbs)</span>
+                      <strong>{result.weightLbsRaw ?? 'N/A'}</strong>
+                    </div>
+                    <div>
+                      <span>Pieces</span>
+                      <strong>{result.pieces ?? pieces}</strong>
+                    </div>
+                  </div>
+                  <div className="debug-dims">
+                    <div className="debug-title">Normalized Dimensions (in)</div>
+                    {result.normalizedDimensionsInInches ? (
+                      <ul>
+                        {Object.entries(result.normalizedDimensionsInInches).map(([key, value]) => (
+                          <li key={key}>{`${key}: ${value}`}</li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <div className="debug-empty">No normalized dimensions returned.</div>
+                    )}
+                  </div>
+                </div>
+              ) : null}
             </div>
           </div>
         </section>

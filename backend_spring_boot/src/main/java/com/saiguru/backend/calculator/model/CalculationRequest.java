@@ -7,6 +7,7 @@ public class CalculationRequest {
     private String shape;
     private Integer pieces;
     private List<DimensionInput> dimensions;
+    private Boolean debug;
 
     public CalculationRequest() {
     }
@@ -48,5 +49,13 @@ public class CalculationRequest {
 
     public void setDimensions(List<DimensionInput> dimensions) {
         this.dimensions = dimensions;
+    }
+
+    public Boolean getDebug() {
+        return debug;
+    }
+
+    public void setDebug(Boolean debug) {
+        this.debug = debug;
     }
 }
