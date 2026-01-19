@@ -50,3 +50,25 @@ export const ALLOY_OPTIONS = [
 
 export const DEFAULT_ALLOY = 'steel';
 export const DEFAULT_QUANTITY = 1;
+
+export const DENSITY_OPTIONS = [
+  { value: 7850, label: 'Carbon steel' },
+  { value: 7900, label: 'Stainless steel' },
+  { value: 2700, label: 'Aluminum' },
+  { value: 8960, label: 'Copper' },
+  { value: 8500, label: 'Brass' },
+  { value: 8800, label: 'Bronze' },
+  { value: 4500, label: 'Titanium' },
+  { value: 7200, label: 'Cast iron' },
+  { value: 7140, label: 'Zinc' },
+  { value: 11340, label: 'Lead' },
+  { value: 1740, label: 'Magnesium' },
+  { value: 8900, label: 'Nickel' },
+  { value: 10490, label: 'Silver' },
+  { value: 19320, label: 'Gold' },
+  { value: 7310, label: 'Tin' },
+  { value: 12000, label: 'Palladium' },
+  { value: 21450, label: 'Platinum' },
+];
+
+export const DEFAULT_DENSITY = 7850;

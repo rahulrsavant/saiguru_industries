@@ -1,6 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
 import './App.css';
-import { ALLOY_OPTIONS, DEFAULT_ALLOY, DEFAULT_QUANTITY } from './data/metalCalculatorConfig';
+import {
+  ALLOY_OPTIONS,
+  DEFAULT_ALLOY,
+  DEFAULT_QUANTITY,
+  DEFAULT_DENSITY,
+  DENSITY_OPTIONS,
+} from './data/metalCalculatorConfig';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8080';
 const MENU_ORDER = [
@@ -23,10 +29,31 @@ const parseNumber = (value) => {
   return Number.parseFloat(String(value).replace(',', '.'));
 };
 
+const toMeters = (value, unit) => {
+  switch (unit) {
+    case 'mm':
+      return value / 1000;
+    case 'cm':
+      return value / 100;
+    case 'm':
+      return value;
+    case 'in':
+      return value * 0.0254;
+    case 'ft':
+      return value * 0.3048;
+    default:
+      return NaN;
+  }
+};
+
 const buildDimensionState = (calculator) => {
   if (!calculator) return {};
   return calculator.fields.reduce((accumulator, field) => {
-    accumulator[field.key] = { value: '', unit: field.defaultUnit || field.allowedUnits?.[0] || 'mm' };
+    let unit = field.defaultUnit || field.allowedUnits?.[0] || 'mm';
+    if (calculator.id === 'rolled_sheet' && field.key === 'length') {
+      unit = 'm';
+    }
+    accumulator[field.key] = { value: '', unit };
     return accumulator;
   }, {});
 };
@@ -57,11 +84,15 @@ function App() {
   const [catalog, setCatalog] = useState(null);
   const [catalogError, setCatalogError] = useState('');
   const [alloy, setAlloy] = useState(DEFAULT_ALLOY);
+  const [densityKgM3, setDensityKgM3] = useState(DEFAULT_DENSITY);
   const [activeCalculatorId, setActiveCalculatorId] = useState('');
   const [activeMenuLabel, setActiveMenuLabel] = useState('');
   const [piecesOrQty, setPiecesOrQty] = useState(DEFAULT_QUANTITY);
   const [mode, setMode] = useState('QTY_TO_WEIGHT');
   const [dimensions, setDimensions] = useState({});
+  const [sheetTotalWeightKg, setSheetTotalWeightKg] = useState('');
+  const [pricePerMeter, setPricePerMeter] = useState('');
+  const [pricePerTon, setPricePerTon] = useState('');
   const [fieldErrors, setFieldErrors] = useState({});
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
@@ -163,6 +194,11 @@ function App() {
     }
 
     const nextFieldErrors = {};
+    const densityValue = parseNumber(densityKgM3);
+    if (!Number.isFinite(densityValue) || densityValue <= 0) {
+      return { message: 'Density must be a positive number.', fieldErrors: nextFieldErrors };
+    }
+
     activeCalculator.fields.forEach((field) => {
       const entry = dimensions[field.key];
       if (!entry || entry.value === '') {
@@ -210,12 +246,14 @@ function App() {
     setError('');
 
     try {
+      const densityValue = parseNumber(densityKgM3);
       const payload = {
         calculatorId: activeCalculator.id,
         materialId: alloy,
         piecesOrQty: parseNumber(piecesOrQty),
         mode,
         debug: debugEnabled,
+        densityKgM3: Number.isFinite(densityValue) ? densityValue : undefined,
         dimensions: activeCalculator.fields.map((field) => ({
           key: field.key,
           value: parseNumber(dimensions[field.key].value),
@@ -246,8 +284,12 @@ function App() {
 
   const handleReset = () => {
     setAlloy(DEFAULT_ALLOY);
+    setDensityKgM3(DEFAULT_DENSITY);
     setPiecesOrQty(DEFAULT_QUANTITY);
     setDimensions(buildDimensionState(activeCalculator));
+    setSheetTotalWeightKg('');
+    setPricePerMeter('');
+    setPricePerTon('');
     setFieldErrors({});
     setResult(null);
     setError('');
@@ -263,6 +305,53 @@ function App() {
 
   const isFasteners = activeCalculator?.category === 'FASTENERS';
   const isWeightToQty = mode === 'WEIGHT_TO_QTY';
+  const isSheet = activeCalculator?.id === 'rolled_sheet';
+  const visibleFields = useMemo(() => {
+    if (!activeCalculator?.fields) return [];
+    if (!isSheet) return activeCalculator.fields;
+    return activeCalculator.fields.filter((field) => field.key !== 'length');
+  }, [activeCalculator, isSheet]);
+
+  const sheetMetrics = useMemo(() => {
+    if (!isSheet) return null;
+    const widthEntry = dimensions.width;
+    const thicknessEntry = dimensions.thickness;
+    if (!widthEntry || !thicknessEntry) return null;
+    const width = parseNumber(widthEntry.value);
+    const thickness = parseNumber(thicknessEntry.value);
+    const density = parseNumber(densityKgM3);
+    if (!Number.isFinite(width) || !Number.isFinite(thickness) || !Number.isFinite(density)) return null;
+    const widthM = toMeters(width, widthEntry.unit);
+    const thicknessM = toMeters(thickness, thicknessEntry.unit);
+    if (!Number.isFinite(widthM) || !Number.isFinite(thicknessM) || widthM <= 0 || thicknessM <= 0 || density <= 0) {
+      return null;
+    }
+    const weightPerMeter = density * widthM * thicknessM;
+    const lengthEntry = dimensions.length;
+    const lengthValue = lengthEntry ? parseNumber(lengthEntry.value) : NaN;
+    const lengthM = Number.isFinite(lengthValue) ? toMeters(lengthValue, lengthEntry.unit) : NaN;
+    const totalWeightForLength = Number.isFinite(lengthM) ? lengthM * weightPerMeter : NaN;
+    const totalWeightInput = parseNumber(sheetTotalWeightKg);
+    const totalLengthForWeight = Number.isFinite(totalWeightInput) ? totalWeightInput / weightPerMeter : NaN;
+    const pricePerMeterValue = parseNumber(pricePerMeter);
+    const pricePerTonValue = parseNumber(pricePerTon);
+    const lengthPerTon = 1000 / weightPerMeter;
+    const costPerTonFromPricePerMeter = Number.isFinite(pricePerMeterValue)
+      ? pricePerMeterValue * lengthPerTon
+      : NaN;
+    const pricePerMeterFromTonPrice = Number.isFinite(pricePerTonValue)
+      ? pricePerTonValue / lengthPerTon
+      : NaN;
+    return {
+      weightPerMeter,
+      totalWeightForLength,
+      totalLengthForWeight,
+      costPerTonFromPricePerMeter,
+      pricePerMeterFromTonPrice,
+    };
+  }, [densityKgM3, dimensions, isSheet, pricePerMeter, pricePerTon, sheetTotalWeightKg]);
+
+  const formatMetric = (value, digits = 3) => (Number.isFinite(value) ? value.toFixed(digits) : 'n/a');
 
   if (catalogError) {
     return <div className="app"><div className="error-box">{catalogError}</div></div>;
@@ -338,6 +427,16 @@ function App() {
                   </select>
                 </label>
                 <label>
+                  Density (kg/m3)
+                  <select value={densityKgM3} onChange={(event) => setDensityKgM3(event.target.value)}>
+                    {DENSITY_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {`${option.label} ${option.value} kg/m3`}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label>
                   Calculator
                   <select
                     value={activeCalculatorId}
@@ -400,7 +499,7 @@ function App() {
 
               <div className="dimension-section">
                 <div className="dimension-title">Dimensions</div>
-                {activeCalculator?.fields.map((field) => (
+                {visibleFields.map((field) => (
                   <FieldInput
                     key={field.key}
                     field={field}
@@ -412,6 +511,55 @@ function App() {
                   />
                 ))}
               </div>
+
+              {isSheet ? (
+                <div className="sheet-pricing">
+                  <div className="dimension-title">Pricing</div>
+                  <div className="field-row">
+                    <label>
+                      Length (m)
+                      <div className="input-unit">
+                        <input
+                          type="text"
+                          inputMode="decimal"
+                          value={dimensions.length?.value ?? ''}
+                          onChange={(event) => updateDimensionValue('length', event.target.value)}
+                        />
+                        <span className="unit-label">m</span>
+                      </div>
+                    </label>
+                    <label>
+                      Total weight (kg)
+                      <input
+                        type="text"
+                        inputMode="decimal"
+                        value={sheetTotalWeightKg}
+                        onChange={(event) => setSheetTotalWeightKg(event.target.value)}
+                      />
+                    </label>
+                  </div>
+                  <div className="field-row">
+                    <label>
+                      Price per 1 meter ($)
+                      <input
+                        type="text"
+                        inputMode="decimal"
+                        value={pricePerMeter}
+                        onChange={(event) => setPricePerMeter(event.target.value)}
+                      />
+                    </label>
+                    <label>
+                      Price per ton ($)
+                      <input
+                        type="text"
+                        inputMode="decimal"
+                        value={pricePerTon}
+                        onChange={(event) => setPricePerTon(event.target.value)}
+                      />
+                    </label>
+                  </div>
+                </div>
+              ) : null}
 
               {error ? <div className="error-box">{error}</div> : null}
 
@@ -459,6 +607,31 @@ function App() {
                   <strong>{piecesOrQty || DEFAULT_QUANTITY}</strong>
                 </div>
               </div>
+
+              {isSheet ? (
+                <div className="sheet-metrics">
+                  <div>
+                    <span>Weight of 1 meter</span>
+                    <strong>{`${formatMetric(sheetMetrics?.weightPerMeter, 3)} kg`}</strong>
+                  </div>
+                  <div>
+                    <span>{`Cost of a ton at a price of ${pricePerMeter || '__'} per meter, $`}</span>
+                    <strong>{formatMetric(sheetMetrics?.costPerTonFromPricePerMeter, 2)}</strong>
+                  </div>
+                  <div>
+                    <span>{`Price per meter of sheet at the cost of a ton ${pricePerTon || '__'}, $`}</span>
+                    <strong>{formatMetric(sheetMetrics?.pricePerMeterFromTonPrice, 2)}</strong>
+                  </div>
+                  <div>
+                    <span>{`Total weight of ${dimensions.length?.value || '__'} meters of sheet, kg`}</span>
+                    <strong>{formatMetric(sheetMetrics?.totalWeightForLength, 3)}</strong>
+                  </div>
+                  <div>
+                    <span>{`Total length of ${sheetTotalWeightKg || '__'} kilograms of sheet, m`}</span>
+                    <strong>{formatMetric(sheetMetrics?.totalLengthForWeight, 2)}</strong>
+                  </div>
+                </div>
+              ) : null}
 
               <div className="result-note">
                 Units are normalized to millimeters internally. Final values are rounded for display.

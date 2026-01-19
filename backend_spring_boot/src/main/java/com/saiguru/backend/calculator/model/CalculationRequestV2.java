@@ -8,6 +8,7 @@ public class CalculationRequestV2 {
     private Double piecesOrQty;
     private CalculationMode mode;
     private List<DimensionInput> dimensions;
+    private Double densityKgM3;
     private Boolean debug;
 
     public CalculationRequestV2() {
@@ -51,6 +52,14 @@ public class CalculationRequestV2 {
 
     public void setDimensions(List<DimensionInput> dimensions) {
         this.dimensions = dimensions;
+    }
+
+    public Double getDensityKgM3() {
+        return densityKgM3;
+    }
+
+    public void setDensityKgM3(Double densityKgM3) {
+        this.densityKgM3 = densityKgM3;
     }
 
     public Boolean getDebug() {

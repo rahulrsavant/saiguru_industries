@@ -51,6 +51,13 @@ public class CalculationEngineService {
         if (density == null) {
             throw new ValidationException("Unsupported material: " + materialId, "materialId");
         }
+        if (request.getDensityKgM3() != null) {
+            double overrideDensity = request.getDensityKgM3();
+            if (overrideDensity <= 0) {
+                throw new ValidationException("Density must be greater than zero.", "densityKgM3");
+            }
+            density = overrideDensity;
+        }
 
         CalculationMode mode = request.getMode() == null ? CalculationMode.QTY_TO_WEIGHT : request.getMode();
         double piecesOrQty = request.getPiecesOrQty() == null ? 0.0 : request.getPiecesOrQty();
