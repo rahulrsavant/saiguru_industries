@@ -153,6 +153,19 @@ public class CalculationEngineService {
                 );
             }
         }
+        if ("NUT_HEX".equals(formulaKey)) {
+            double innerDiameter = dimensions.get("diameter");
+            if (innerDiameter <= 0) {
+                throw new ValidationException("Inner diameter must be greater than zero.", "diameter");
+            }
+            double outerDiameter = innerDiameter * 1.6;
+            if (outerDiameter <= innerDiameter) {
+                throw new ValidationException(
+                    "Derived outer diameter must be greater than inner diameter.",
+                    "diameter"
+                );
+            }
+        }
     }
 
     private String normalizeRequired(String value, String field) {
