@@ -1,5 +1,7 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useReactToPrint } from 'react-to-print';
 import Calculator from '../components/Calculator';
+import ReceiptPreview from '../components/ReceiptPreview';
 import {
   createNewEstimateSession,
   getSettings,
@@ -53,6 +55,7 @@ const EstimatePage = () => {
   const [session, setSession] = useState(buildEmptySession);
   const [customerErrors, setCustomerErrors] = useState({});
   const [settings, setSettings] = useState(getSettings());
+  const receiptRef = useRef(null);
 
   useEffect(() => {
     persistCurrentEstimateSession(session);
@@ -193,6 +196,13 @@ const EstimatePage = () => {
 
   const items = session.items || [];
   const totals = session.totals || calculateTotals(items);
+  const isCustomerMissing = !session.customer.name.trim() || !session.customer.mobile.trim();
+  const canPrint = items.length > 0;
+  const handlePrint = useReactToPrint({
+    content: () => receiptRef.current,
+    documentTitle: `estimate_${session.estimateNo || 'receipt'}`,
+    removeAfterPrint: false,
+  });
 
   const tableRows = useMemo(
     () =>
@@ -346,6 +356,25 @@ const EstimatePage = () => {
             ) : null}
           </table>
         </div>
+      </section>
+
+      <section className="receipt-section">
+        <div className="section-title">
+          <h2>Receipt</h2>
+          <p>Review the PDF preview before printing.</p>
+        </div>
+        <div className="receipt-actions">
+          <button type="button" className="primary" onClick={handlePrint} disabled={!canPrint}>
+            Print Receipt (PDF)
+          </button>
+          {!canPrint ? (
+            <span className="helper-text">Add items to estimate to print receipt.</span>
+          ) : null}
+          {isCustomerMissing ? (
+            <span className="helper-text warn">Customer name and mobile are recommended for printing.</span>
+          ) : null}
+        </div>
+        <ReceiptPreview ref={receiptRef} session={session} />
       </section>
     </main>
   );
