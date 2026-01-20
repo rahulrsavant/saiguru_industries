@@ -445,6 +445,23 @@ select {
   gap: 24px;
 }
 
+.page-estimate {
+  align-items: center;
+}
+
+.page-estimate > section {
+  width: min(1100px, 100%);
+}
+
+.page-estimate .calculator {
+  width: min(1100px, 100%);
+  padding: 0;
+}
+
+.page-estimate .calculator-card {
+  width: 100%;
+}
+
 .page-home .hero-card {
   background: linear-gradient(120deg, #fff8f2, #f3f7ff);
   border: 1px solid #efe3d7;
@@ -728,5 +745,17 @@ select {
 
   .topnav {
     flex-wrap: wrap;
+  }
+
+  .page {
+    padding: 16px;
+  }
+
+  .estimate-meta {
+    grid-template-columns: 1fr;
+  }
+
+  .estimate-header {
+    align-items: flex-start;
   }
 }
