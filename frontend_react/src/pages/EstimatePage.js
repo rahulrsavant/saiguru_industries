@@ -37,6 +37,18 @@ const calculateTotals = (items) => {
   return totals;
 };
 
+const normalizeDimensions = (dimensions) => {
+  if (!dimensions) return '';
+  const entries = Object.entries(dimensions)
+    .map(([key, value]) => ({
+      key,
+      value: Number(value?.value),
+      unit: value?.unit || '',
+    }))
+    .sort((a, b) => a.key.localeCompare(b.key));
+  return JSON.stringify(entries);
+};
+
 const EstimatePage = () => {
   const [session, setSession] = useState(buildEmptySession);
   const [customerErrors, setCustomerErrors] = useState({});
@@ -91,6 +103,64 @@ const EstimatePage = () => {
 
   const handleAddLineItem = (lineItem) => {
     setSession((prev) => {
+      const incomingSignature = [
+        lineItem.shape?.id,
+        lineItem.alloy?.id,
+        lineItem.mode,
+        normalizeDimensions(lineItem.dimensions),
+      ].join('|');
+      const existingIndex = prev.items.findIndex((item) => {
+        const signature = [
+          item.shape?.id,
+          item.alloy?.id,
+          item.mode,
+          normalizeDimensions(item.dimensions),
+        ].join('|');
+        return signature === incomingSignature;
+      });
+
+      if (existingIndex >= 0) {
+        const shouldMerge = window.confirm(
+          'This item is already added. Do you want to add the quantity to the existing line?'
+        );
+        if (!shouldMerge) {
+          return prev;
+        }
+        const existingItem = prev.items[existingIndex];
+        const mergedPieces = Number(existingItem.pieces) + Number(lineItem.pieces);
+        const mergedItem = {
+          ...existingItem,
+          pieces: Number.isFinite(mergedPieces) ? mergedPieces : existingItem.pieces,
+          calculation: {
+            ...existingItem.calculation,
+            weightKg: Number.isFinite(existingItem.calculation?.weightKg) &&
+              Number.isFinite(lineItem.calculation?.weightKg)
+              ? existingItem.calculation.weightKg + lineItem.calculation.weightKg
+              : existingItem.calculation?.weightKg ?? lineItem.calculation?.weightKg,
+            quantity: Number.isFinite(existingItem.calculation?.quantity) &&
+              Number.isFinite(lineItem.calculation?.quantity)
+              ? existingItem.calculation.quantity + lineItem.calculation.quantity
+              : existingItem.calculation?.quantity ?? lineItem.calculation?.quantity,
+            volumeM3: Number.isFinite(existingItem.calculation?.volumeM3) &&
+              Number.isFinite(lineItem.calculation?.volumeM3)
+              ? existingItem.calculation.volumeM3 + lineItem.calculation.volumeM3
+              : existingItem.calculation?.volumeM3 ?? lineItem.calculation?.volumeM3,
+          },
+        };
+        const items = prev.items.map((item, index) =>
+          index === existingIndex ? mergedItem : item
+        );
+        const totals = calculateTotals(items);
+        const nextSession = {
+          ...prev,
+          items,
+          totals,
+          updatedAt: new Date().toISOString(),
+        };
+        upsertHistoryEntry(nextSession);
+        return nextSession;
+      }
+
       const items = [...prev.items, lineItem];
       const totals = calculateTotals(items);
       const nextSession = {
