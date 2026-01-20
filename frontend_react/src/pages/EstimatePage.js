@@ -359,22 +359,28 @@ const EstimatePage = () => {
       </section>
 
       <section className="receipt-section">
-        <div className="section-title">
-          <h2>Receipt</h2>
-          <p>Review the PDF preview before printing.</p>
+        <div className="receipt-title-row">
+          <div>
+            <h2>Receipt Preview</h2>
+            <p className="subtext">This is how your PDF will look when printed.</p>
+          </div>
+          <div className="receipt-actions">
+            <button type="button" className="primary" onClick={handlePrint} disabled={!canPrint}>
+              Print Receipt (PDF)
+            </button>
+            {!canPrint ? (
+              <span className="helper-text">Add items to estimate to print receipt.</span>
+            ) : null}
+            {isCustomerMissing ? (
+              <span className="helper-text warn">
+                Customer name and mobile are recommended for printing.
+              </span>
+            ) : null}
+          </div>
         </div>
-        <div className="receipt-actions">
-          <button type="button" className="primary" onClick={handlePrint} disabled={!canPrint}>
-            Print Receipt (PDF)
-          </button>
-          {!canPrint ? (
-            <span className="helper-text">Add items to estimate to print receipt.</span>
-          ) : null}
-          {isCustomerMissing ? (
-            <span className="helper-text warn">Customer name and mobile are recommended for printing.</span>
-          ) : null}
+        <div className="receipt-preview-wrapper">
+          <ReceiptPreview ref={receiptRef} session={session} />
         </div>
-        <ReceiptPreview ref={receiptRef} session={session} />
       </section>
     </main>
   );
