@@ -1,5 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { useReactToPrint } from 'react-to-print';
+import { useEffect, useMemo, useState } from 'react';
 import Calculator from '../components/Calculator';
 import ReceiptPreview from '../components/ReceiptPreview';
 import {
@@ -55,7 +54,6 @@ const EstimatePage = () => {
   const [session, setSession] = useState(buildEmptySession);
   const [customerErrors, setCustomerErrors] = useState({});
   const [settings, setSettings] = useState(getSettings());
-  const receiptRef = useRef(null);
 
   useEffect(() => {
     persistCurrentEstimateSession(session);
@@ -198,11 +196,18 @@ const EstimatePage = () => {
   const totals = session.totals || calculateTotals(items);
   const isCustomerMissing = !session.customer.name.trim() || !session.customer.mobile.trim();
   const canPrint = items.length > 0;
-  const handlePrint = useReactToPrint({
-    content: () => receiptRef.current,
-    documentTitle: `estimate_${session.estimateNo || 'receipt'}`,
-    removeAfterPrint: false,
-  });
+  const handlePrint = () => {
+    if (!canPrint) return;
+    const originalTitle = document.title;
+    const nextTitle = `estimate_${session.estimateNo || 'receipt'}`;
+    const restoreTitle = () => {
+      document.title = originalTitle;
+      window.removeEventListener('afterprint', restoreTitle);
+    };
+    document.title = nextTitle;
+    window.addEventListener('afterprint', restoreTitle);
+    window.print();
+  };
 
   const tableRows = useMemo(
     () =>
@@ -379,7 +384,7 @@ const EstimatePage = () => {
           </div>
         </div>
         <div className="receipt-preview-wrapper">
-          <ReceiptPreview ref={receiptRef} session={session} />
+          <ReceiptPreview session={session} />
         </div>
       </section>
     </main>
