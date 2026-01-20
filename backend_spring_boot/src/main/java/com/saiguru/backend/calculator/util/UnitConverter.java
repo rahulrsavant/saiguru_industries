@@ -38,4 +38,8 @@ public final class UnitConverter {
         }
         return value * multiplier;
     }
+
+    public static double toCentimeters(double value, String unit) {
+        return toMillimeters(value, unit) / 10.0;
+    }
 }

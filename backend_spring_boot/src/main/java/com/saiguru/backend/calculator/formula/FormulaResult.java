@@ -4,13 +4,15 @@ public class FormulaResult {
     private final double weightKg;
     private final double volumeM3;
     private final double quantity;
-    private final double volumePerPieceM3;
+    private final double volumePerPieceCm3;
+    private final double unitWeightKg;
 
-    public FormulaResult(double weightKg, double volumeM3, double quantity, double volumePerPieceM3) {
+    public FormulaResult(double weightKg, double volumeM3, double quantity, double volumePerPieceCm3, double unitWeightKg) {
         this.weightKg = weightKg;
         this.volumeM3 = volumeM3;
         this.quantity = quantity;
-        this.volumePerPieceM3 = volumePerPieceM3;
+        this.volumePerPieceCm3 = volumePerPieceCm3;
+        this.unitWeightKg = unitWeightKg;
     }
 
     public double getWeightKg() {
@@ -25,7 +27,11 @@ public class FormulaResult {
         return quantity;
     }
 
-    public double getVolumePerPieceM3() {
-        return volumePerPieceM3;
+    public double getVolumePerPieceCm3() {
+        return volumePerPieceCm3;
+    }
+
+    public double getUnitWeightKg() {
+        return unitWeightKg;
     }
 }

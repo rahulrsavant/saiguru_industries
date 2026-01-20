@@ -4,11 +4,11 @@ import java.util.List;
 
 public class CalculationRequestV2 {
     private String calculatorId;
-    private String materialId;
+    private String metal;
+    private String alloy;
     private Double piecesOrQty;
     private CalculationMode mode;
     private List<DimensionInput> dimensions;
-    private Double densityKgM3;
     private Boolean debug;
 
     public CalculationRequestV2() {
@@ -22,12 +22,20 @@ public class CalculationRequestV2 {
         this.calculatorId = calculatorId;
     }
 
-    public String getMaterialId() {
-        return materialId;
+    public String getMetal() {
+        return metal;
     }
 
-    public void setMaterialId(String materialId) {
-        this.materialId = materialId;
+    public void setMetal(String metal) {
+        this.metal = metal;
+    }
+
+    public String getAlloy() {
+        return alloy;
+    }
+
+    public void setAlloy(String alloy) {
+        this.alloy = alloy;
     }
 
     public Double getPiecesOrQty() {
@@ -52,14 +60,6 @@ public class CalculationRequestV2 {
 
     public void setDimensions(List<DimensionInput> dimensions) {
         this.dimensions = dimensions;
-    }
-
-    public Double getDensityKgM3() {
-        return densityKgM3;
-    }
-
-    public void setDensityKgM3(Double densityKgM3) {
-        this.densityKgM3 = densityKgM3;
     }
 
     public Boolean getDebug() {

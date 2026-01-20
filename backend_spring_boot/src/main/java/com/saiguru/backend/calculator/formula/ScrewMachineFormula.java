@@ -3,10 +3,10 @@ package com.saiguru.backend.calculator.formula;
 public class ScrewMachineFormula extends RoundBarFormula {
     @Override
     public FormulaResult compute(FormulaInput input) {
-        double diameter = input.getDimensionsMm().get("diameter");
-        double length = input.getDimensionsMm().get("length");
+        double diameter = input.getDimensionsCm().get("diameter");
+        double length = input.getDimensionsCm().get("length");
         double radius = diameter / 2.0;
-        double volumePerPieceMm3 = Math.PI * radius * radius * length;
-        return computeResult(volumePerPieceMm3, input);
+        double volumePerPieceCm3 = Math.PI * radius * radius * length;
+        return computeResult(volumePerPieceCm3, input);
     }
 }

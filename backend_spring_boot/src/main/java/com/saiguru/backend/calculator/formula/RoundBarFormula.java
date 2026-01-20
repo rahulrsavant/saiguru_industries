@@ -5,27 +5,27 @@ import com.saiguru.backend.calculator.model.CalculationMode;
 public class RoundBarFormula implements Formula {
     @Override
     public FormulaResult compute(FormulaInput input) {
-        double diameter = input.getDimensionsMm().get("diameter");
-        double length = input.getDimensionsMm().get("length");
+        double diameter = input.getDimensionsCm().get("diameter");
+        double length = input.getDimensionsCm().get("length");
         double radius = diameter / 2.0;
-        double volumePerPieceMm3 = Math.PI * radius * radius * length;
-        return computeResult(volumePerPieceMm3, input);
+        double volumePerPieceCm3 = Math.PI * radius * radius * length;
+        return computeResult(volumePerPieceCm3, input);
     }
 
-    protected FormulaResult computeResult(double volumePerPieceMm3, FormulaInput input) {
-        double volumePerPieceM3 = volumePerPieceMm3 / 1_000_000_000.0;
-        double density = input.getDensityKgM3();
+    protected FormulaResult computeResult(double volumePerPieceCm3, FormulaInput input) {
+        double density = input.getDensityGPerCm3();
+        double unitWeightKg = (volumePerPieceCm3 * density) / 1000.0;
 
         if (input.getMode() == CalculationMode.WEIGHT_TO_QTY) {
             double weightKg = input.getQuantityOrWeight();
-            double quantity = weightKg / (volumePerPieceM3 * density);
-            double volumeM3 = volumePerPieceM3 * quantity;
-            return new FormulaResult(weightKg, volumeM3, quantity, volumePerPieceM3);
+            double quantity = weightKg / unitWeightKg;
+            double volumeM3 = (volumePerPieceCm3 * quantity) / 1_000_000.0;
+            return new FormulaResult(weightKg, volumeM3, quantity, volumePerPieceCm3, unitWeightKg);
         }
 
         double quantity = input.getQuantityOrWeight();
-        double volumeM3 = volumePerPieceM3 * quantity;
-        double weightKg = volumeM3 * density;
-        return new FormulaResult(weightKg, volumeM3, quantity, volumePerPieceM3);
+        double volumeM3 = (volumePerPieceCm3 * quantity) / 1_000_000.0;
+        double weightKg = unitWeightKg * quantity;
+        return new FormulaResult(weightKg, volumeM3, quantity, volumePerPieceCm3, unitWeightKg);
     }
 }

@@ -1,0 +1,166 @@
+{
+  "unit": "g/cm3",
+  "metals": [
+    {
+      "id": "steel",
+      "label": "Steel",
+      "alloys": [
+        { "id": "carbon", "label": "Carbon steel", "density": 7.85 }
+      ]
+    },
+    {
+      "id": "stainless_steel",
+      "label": "Stainless steel",
+      "alloys": [
+        { "id": "300", "label": "300 Series", "density": 7.9995 },
+        { "id": "400", "label": "400 Series", "density": 7.7504 }
+      ]
+    },
+    {
+      "id": "aluminum",
+      "label": "Aluminum",
+      "alloys": [
+        { "id": "1100", "label": "1100", "density": 2.6988 },
+        { "id": "2011", "label": "2011", "density": 2.8095 },
+        { "id": "2014", "label": "2014", "density": 2.7957 },
+        { "id": "2017", "label": "2017", "density": 2.7957 },
+        { "id": "2024", "label": "2024", "density": 2.768 },
+        { "id": "3003", "label": "3003", "density": 2.7403 },
+        { "id": "5005", "label": "5005", "density": 2.685 },
+        { "id": "5052", "label": "5052", "density": 2.6573 },
+        { "id": "5056", "label": "5056", "density": 2.6711 },
+        { "id": "5083", "label": "5083", "density": 2.6573 },
+        { "id": "5086", "label": "5086", "density": 2.6573 },
+        { "id": "6061", "label": "6061", "density": 2.6988 },
+        { "id": "6063", "label": "6063", "density": 2.685 },
+        { "id": "7050", "label": "7050", "density": 2.851 },
+        { "id": "7075", "label": "7075", "density": 2.8234 },
+        { "id": "7178", "label": "7178", "density": 2.8234 }
+      ]
+    },
+    {
+      "id": "nickel",
+      "label": "Nickel",
+      "alloys": [
+        { "id": "200", "label": "200", "density": 8.8852 },
+        { "id": "400", "label": "400", "density": 8.8022 },
+        { "id": "r-405", "label": "R-405", "density": 8.8022 },
+        { "id": "k-500", "label": "K-500", "density": 8.6361 },
+        { "id": "600", "label": "600", "density": 8.4424 },
+        { "id": "625", "label": "625", "density": 8.4424 },
+        { "id": "800h", "label": "800H", "density": 7.9441 },
+        { "id": "800at", "label": "800AT", "density": 7.9441 },
+        { "id": "825", "label": "825", "density": 8.4701 },
+        { "id": "330", "label": "330", "density": 8.5254 },
+        { "id": "20", "label": "20", "density": 8.304 },
+        { "id": "c-276", "label": "C-276", "density": 8.8852 },
+        { "id": "254smo", "label": "254SMO", "density": 8.0272 }
+      ]
+    },
+    {
+      "id": "magnesium",
+      "label": "Magnesium",
+      "alloys": [
+        { "id": "default", "label": "Default", "density": 1.7438 }
+      ]
+    },
+    {
+      "id": "beryllium",
+      "label": "Beryllium",
+      "alloys": [
+        { "id": "default", "label": "Default", "density": 1.8546 }
+      ]
+    },
+    {
+      "id": "titanium",
+      "label": "Titanium",
+      "alloys": [
+        { "id": "default", "label": "Default", "density": 4.5118 }
+      ]
+    },
+    {
+      "id": "zirconium",
+      "label": "Zirconium",
+      "alloys": [
+        { "id": "default", "label": "Default", "density": 6.5601 }
+      ]
+    },
+    {
+      "id": "cast_iron",
+      "label": "Cast iron",
+      "alloys": [
+        { "id": "default", "label": "Default", "density": 7.1968 }
+      ]
+    },
+    {
+      "id": "zinc",
+      "label": "Zinc",
+      "alloys": [
+        { "id": "default", "label": "Default", "density": 7.1414 }
+      ]
+    },
+    {
+      "id": "brass",
+      "label": "Brass",
+      "alloys": [
+        { "id": "default", "label": "Default", "density": 8.4977 }
+      ]
+    },
+    {
+      "id": "copper",
+      "label": "Copper",
+      "alloys": [
+        { "id": "default", "label": "Default", "density": 8.9406 }
+      ]
+    },
+    {
+      "id": "columbium_niobium",
+      "label": "Columbium (Niobium)",
+      "alloys": [
+        { "id": "default", "label": "Default", "density": 8.6915 }
+      ]
+    },
+    {
+      "id": "molybdenum",
+      "label": "Molybdenum",
+      "alloys": [
+        { "id": "default", "label": "Default", "density": 10.38 }
+      ]
+    },
+    {
+      "id": "lead",
+      "label": "Lead",
+      "alloys": [
+        { "id": "default", "label": "Default", "density": 11.3211 }
+      ]
+    },
+    {
+      "id": "silver",
+      "label": "Silver",
+      "alloys": [
+        { "id": "default", "label": "Default", "density": 10.4907 }
+      ]
+    },
+    {
+      "id": "tantalum",
+      "label": "Tantalum",
+      "alloys": [
+        { "id": "default", "label": "Default", "density": 16.6633 }
+      ]
+    },
+    {
+      "id": "tungsten",
+      "label": "Tungsten",
+      "alloys": [
+        { "id": "default", "label": "Default", "density": 19.2929 }
+      ]
+    },
+    {
+      "id": "gold",
+      "label": "Gold",
+      "alloys": [
+        { "id": "default", "label": "Default", "density": 19.3483 }
+      ]
+    }
+  ]
+}

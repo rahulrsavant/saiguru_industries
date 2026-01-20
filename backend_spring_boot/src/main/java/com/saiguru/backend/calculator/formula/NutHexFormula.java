@@ -5,12 +5,12 @@ public class NutHexFormula extends RoundBarFormula {
 
     @Override
     public FormulaResult compute(FormulaInput input) {
-        double innerDiameter = input.getDimensionsMm().get("diameter");
-        double thickness = input.getDimensionsMm().get("thickness");
+        double innerDiameter = input.getDimensionsCm().get("diameter");
+        double thickness = input.getDimensionsCm().get("thickness");
         double outerDiameter = innerDiameter * OUTER_DIAMETER_FACTOR;
         double innerRadius = innerDiameter / 2.0;
         double outerRadius = outerDiameter / 2.0;
-        double volumePerPieceMm3 = Math.PI * (outerRadius * outerRadius - innerRadius * innerRadius) * thickness;
-        return computeResult(volumePerPieceMm3, input);
+        double volumePerPieceCm3 = Math.PI * (outerRadius * outerRadius - innerRadius * innerRadius) * thickness;
+        return computeResult(volumePerPieceCm3, input);
     }
 }

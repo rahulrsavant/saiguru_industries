@@ -4,15 +4,19 @@ import java.util.Map;
 
 public class CalculationResult {
     private double weightKg;
+    private Double totalWeightKg;
     private double volumeM3;
     private double weightKgRaw;
     private double volumeM3Raw;
     private double quantity;
     private double quantityRaw;
-    private Double densityKgM3;
+    private Double unitWeightKg;
+    private Double densityGPerCm3;
     private Double volumePerPieceM3;
     private Map<String, Double> normalizedDimensionsMm;
     private CalculationMode mode;
+    private String metal;
+    private String alloy;
 
     public CalculationResult() {
     }
@@ -23,6 +27,14 @@ public class CalculationResult {
 
     public void setWeightKg(double weightKg) {
         this.weightKg = weightKg;
+    }
+
+    public Double getTotalWeightKg() {
+        return totalWeightKg;
+    }
+
+    public void setTotalWeightKg(Double totalWeightKg) {
+        this.totalWeightKg = totalWeightKg;
     }
 
     public double getVolumeM3() {
@@ -65,12 +77,20 @@ public class CalculationResult {
         this.quantityRaw = quantityRaw;
     }
 
-    public Double getDensityKgM3() {
-        return densityKgM3;
+    public Double getUnitWeightKg() {
+        return unitWeightKg;
     }
 
-    public void setDensityKgM3(Double densityKgM3) {
-        this.densityKgM3 = densityKgM3;
+    public void setUnitWeightKg(Double unitWeightKg) {
+        this.unitWeightKg = unitWeightKg;
+    }
+
+    public Double getDensityGPerCm3() {
+        return densityGPerCm3;
+    }
+
+    public void setDensityGPerCm3(Double densityGPerCm3) {
+        this.densityGPerCm3 = densityGPerCm3;
     }
 
     public Double getVolumePerPieceM3() {
@@ -95,5 +115,21 @@ public class CalculationResult {
 
     public void setMode(CalculationMode mode) {
         this.mode = mode;
+    }
+
+    public String getMetal() {
+        return metal;
+    }
+
+    public void setMetal(String metal) {
+        this.metal = metal;
+    }
+
+    public String getAlloy() {
+        return alloy;
+    }
+
+    public void setAlloy(String alloy) {
+        this.alloy = alloy;
     }
 }

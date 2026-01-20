@@ -1,6 +1,6 @@
 package com.saiguru.backend.calculator.formula;
 
-public class BoltHexFormula extends RoundBarFormula {
+public class RebarFormula extends RoundBarFormula {
     @Override
     public FormulaResult compute(FormulaInput input) {
         double diameter = input.getDimensionsCm().get("diameter");

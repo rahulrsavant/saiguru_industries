@@ -1,12 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import './App.css';
-import {
-  ALLOY_OPTIONS,
-  DEFAULT_ALLOY,
-  DEFAULT_QUANTITY,
-  DEFAULT_DENSITY,
-  DENSITY_OPTIONS,
-} from './data/metalCalculatorConfig';
+import { DEFAULT_QUANTITY } from './data/metalCalculatorConfig';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8080';
 const MENU_ORDER = [
@@ -83,8 +77,10 @@ const FieldInput = ({ field, value, unit, error, onValueChange, onUnitChange }) 
 function App() {
   const [catalog, setCatalog] = useState(null);
   const [catalogError, setCatalogError] = useState('');
-  const [alloy, setAlloy] = useState(DEFAULT_ALLOY);
-  const [densityKgM3, setDensityKgM3] = useState(DEFAULT_DENSITY);
+  const [densityCatalog, setDensityCatalog] = useState(null);
+  const [densityError, setDensityError] = useState('');
+  const [metal, setMetal] = useState('');
+  const [alloy, setAlloy] = useState('');
   const [activeCalculatorId, setActiveCalculatorId] = useState('');
   const [activeMenuLabel, setActiveMenuLabel] = useState('');
   const [piecesOrQty, setPiecesOrQty] = useState(DEFAULT_QUANTITY);
@@ -113,7 +109,26 @@ function App() {
       }
     };
 
+    const fetchDensityCatalog = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/density-catalog`);
+        if (!response.ok) {
+          throw new Error('Unable to load density catalog.');
+        }
+        const data = await response.json();
+        setDensityCatalog(data);
+        const defaultMetal = data?.metals?.[0];
+        if (defaultMetal) {
+          setMetal(defaultMetal.id);
+          setAlloy(defaultMetal.alloys?.[0]?.id || '');
+        }
+      } catch (fetchError) {
+        setDensityError(fetchError.message || 'Unable to load density catalog.');
+      }
+    };
+
     fetchCatalog();
+    fetchDensityCatalog();
   }, []);
 
   const menuItems = useMemo(() => {
@@ -148,6 +163,26 @@ function App() {
     if (!catalog?.calculators) return null;
     return catalog.calculators.find((calculator) => calculator.id === activeCalculatorId) || null;
   }, [catalog, activeCalculatorId]);
+
+  const metals = densityCatalog?.metals ?? [];
+  const selectedMetal = useMemo(
+    () => metals.find((entry) => entry.id === metal) || metals[0] || null,
+    [metals, metal],
+  );
+  const alloys = selectedMetal?.alloys ?? [];
+  const selectedAlloy = useMemo(
+    () => alloys.find((entry) => entry.id === alloy) || alloys[0] || null,
+    [alloys, alloy],
+  );
+  const densityGcm3 = selectedAlloy?.density ?? null;
+
+  useEffect(() => {
+    if (!selectedMetal) return;
+    const isAlloyValid = selectedMetal.alloys?.some((entry) => entry.id === alloy);
+    if (!isAlloyValid) {
+      setAlloy(selectedMetal.alloys?.[0]?.id || '');
+    }
+  }, [selectedMetal, alloy]);
 
   useEffect(() => {
     if (!menuItems.length) return;
@@ -188,15 +223,29 @@ function App() {
     }));
   };
 
+  const handleMetalChange = (nextMetalId) => {
+    setMetal(nextMetalId);
+    const nextMetal = metals.find((entry) => entry.id === nextMetalId);
+    setAlloy(nextMetal?.alloys?.[0]?.id || '');
+    setError('');
+  };
+
+  const handleAlloyChange = (nextAlloyId) => {
+    setAlloy(nextAlloyId);
+    setError('');
+  };
+
   const validateForm = () => {
     if (!activeCalculator) {
       return { message: 'Select a calculator.', fieldErrors: {} };
     }
 
     const nextFieldErrors = {};
-    const densityValue = parseNumber(densityKgM3);
-    if (!Number.isFinite(densityValue) || densityValue <= 0) {
-      return { message: 'Density must be a positive number.', fieldErrors: nextFieldErrors };
+    if (!metal || !alloy) {
+      return { message: 'Select a metal and alloy.', fieldErrors: nextFieldErrors };
+    }
+    if (!Number.isFinite(densityGcm3) || densityGcm3 <= 0) {
+      return { message: 'Select a metal and alloy with a valid density.', fieldErrors: nextFieldErrors };
     }
 
     activeCalculator.fields.forEach((field) => {
@@ -246,14 +295,13 @@ function App() {
     setError('');
 
     try {
-      const densityValue = parseNumber(densityKgM3);
       const payload = {
         calculatorId: activeCalculator.id,
-        materialId: alloy,
+        metal,
+        alloy,
         piecesOrQty: parseNumber(piecesOrQty),
         mode,
         debug: debugEnabled,
-        densityKgM3: Number.isFinite(densityValue) ? densityValue : undefined,
         dimensions: activeCalculator.fields.map((field) => ({
           key: field.key,
           value: parseNumber(dimensions[field.key].value),
@@ -283,8 +331,9 @@ function App() {
   };
 
   const handleReset = () => {
-    setAlloy(DEFAULT_ALLOY);
-    setDensityKgM3(DEFAULT_DENSITY);
+    const defaultMetal = densityCatalog?.metals?.[0];
+    setMetal(defaultMetal?.id || '');
+    setAlloy(defaultMetal?.alloys?.[0]?.id || '');
     setPiecesOrQty(DEFAULT_QUANTITY);
     setDimensions(buildDimensionState(activeCalculator));
     setSheetTotalWeightKg('');
@@ -294,6 +343,20 @@ function App() {
     setResult(null);
     setError('');
   };
+
+  useEffect(() => {
+    const hasDimensions = Object.values(dimensions).some((entry) => entry?.value !== '' && entry?.value != null);
+    const hasInput = hasDimensions || parseNumber(piecesOrQty) > 0;
+    if (!hasInput) return;
+    const validation = validateForm();
+    setFieldErrors(validation.fieldErrors);
+    if (validation.message) {
+      setError(validation.message);
+      setResult(null);
+      return;
+    }
+    handleCalculate();
+  }, [metal, alloy]);
 
   const handleMenuSelect = (menuLabel) => {
     setActiveMenuLabel(menuLabel);
@@ -319,14 +382,15 @@ function App() {
     if (!widthEntry || !thicknessEntry) return null;
     const width = parseNumber(widthEntry.value);
     const thickness = parseNumber(thicknessEntry.value);
-    const density = parseNumber(densityKgM3);
-    if (!Number.isFinite(width) || !Number.isFinite(thickness) || !Number.isFinite(density)) return null;
+    const densityGcm3Value = Number.isFinite(densityGcm3) ? densityGcm3 : NaN;
+    const densityKgM3 = Number.isFinite(densityGcm3Value) ? densityGcm3Value * 1000 : NaN;
+    if (!Number.isFinite(width) || !Number.isFinite(thickness) || !Number.isFinite(densityKgM3)) return null;
     const widthM = toMeters(width, widthEntry.unit);
     const thicknessM = toMeters(thickness, thicknessEntry.unit);
-    if (!Number.isFinite(widthM) || !Number.isFinite(thicknessM) || widthM <= 0 || thicknessM <= 0 || density <= 0) {
+    if (!Number.isFinite(widthM) || !Number.isFinite(thicknessM) || widthM <= 0 || thicknessM <= 0 || densityKgM3 <= 0) {
       return null;
     }
-    const weightPerMeter = density * widthM * thicknessM;
+    const weightPerMeter = densityKgM3 * widthM * thicknessM;
     const lengthEntry = dimensions.length;
     const lengthValue = lengthEntry ? parseNumber(lengthEntry.value) : NaN;
     const lengthM = Number.isFinite(lengthValue) ? toMeters(lengthValue, lengthEntry.unit) : NaN;
@@ -349,12 +413,16 @@ function App() {
       costPerTonFromPricePerMeter,
       pricePerMeterFromTonPrice,
     };
-  }, [densityKgM3, dimensions, isSheet, pricePerMeter, pricePerTon, sheetTotalWeightKg]);
+  }, [densityGcm3, dimensions, isSheet, pricePerMeter, pricePerTon, sheetTotalWeightKg]);
 
   const formatMetric = (value, digits = 3) => (Number.isFinite(value) ? value.toFixed(digits) : 'n/a');
 
-  if (catalogError) {
-    return <div className="app"><div className="error-box">{catalogError}</div></div>;
+  if (catalogError || densityError) {
+    return (
+      <div className="app">
+        <div className="error-box">{catalogError || densityError}</div>
+      </div>
+    );
   }
 
   return (
@@ -417,24 +485,28 @@ function App() {
             <div className="form-section">
               <div className="field-row">
                 <label>
-                  Alloy / Material
-                  <select value={alloy} onChange={(event) => setAlloy(event.target.value)}>
-                    {ALLOY_OPTIONS.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
+                  Metal
+                  <select value={metal} onChange={(event) => handleMetalChange(event.target.value)}>
+                    {metals.map((entry) => (
+                      <option key={entry.id} value={entry.id}>
+                        {entry.label}
                       </option>
                     ))}
                   </select>
                 </label>
                 <label>
-                  Density (kg/m3)
-                  <select value={densityKgM3} onChange={(event) => setDensityKgM3(event.target.value)}>
-                    {DENSITY_OPTIONS.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {`${option.label} ${option.value} kg/m3`}
+                  Alloy
+                  <select value={alloy} onChange={(event) => handleAlloyChange(event.target.value)}>
+                    {alloys.map((entry) => (
+                      <option key={entry.id} value={entry.id}>
+                        {entry.label}
                       </option>
                     ))}
                   </select>
+                </label>
+                <label>
+                  Density (g/cm3)
+                  <input type="text" value={densityGcm3 ?? ''} readOnly />
                 </label>
                 <label>
                   Calculator
@@ -603,6 +675,10 @@ function App() {
                   <strong>{result?.volumeM3 ? result.volumeM3.toFixed(4) : '0.0000'} m³</strong>
                 </div>
                 <div>
+                  <span>Unit weight</span>
+                  <strong>{result?.unitWeightKg ? result.unitWeightKg.toFixed(4) : '0.0000'} kg</strong>
+                </div>
+                <div>
                   <span>{isWeightToQty ? 'Input Weight' : 'Quantity'}</span>
                   <strong>{piecesOrQty || DEFAULT_QUANTITY}</strong>
                 </div>
@@ -634,7 +710,7 @@ function App() {
               ) : null}
 
               <div className="result-note">
-                Units are normalized to millimeters internally. Final values are rounded for display.
+                Units are normalized to centimeters internally. Final values are rounded for display.
               </div>
 
               {debugEnabled && result ? (
@@ -642,8 +718,12 @@ function App() {
                   <div className="debug-title">Debug details</div>
                   <div className="debug-grid">
                     <div>
-                      <span>Density (kg/m³)</span>
-                      <strong>{result.densityKgM3 ?? 'N/A'}</strong>
+                      <span>Density (g/cm³)</span>
+                      <strong>{result.densityGPerCm3 ?? 'N/A'}</strong>
+                    </div>
+                    <div>
+                      <span>Unit Weight (kg)</span>
+                      <strong>{result.unitWeightKg ?? 'N/A'}</strong>
                     </div>
                     <div>
                       <span>Raw Volume (m³)</span>

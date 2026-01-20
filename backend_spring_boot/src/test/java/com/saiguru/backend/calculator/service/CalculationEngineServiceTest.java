@@ -2,7 +2,7 @@ package com.saiguru.backend.calculator.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.saiguru.backend.calculator.catalog.CatalogService;
-import com.saiguru.backend.calculator.config.AlloyDensityCatalog;
+import com.saiguru.backend.calculator.density.DensityCatalogService;
 import com.saiguru.backend.calculator.formula.FormulaRegistry;
 import com.saiguru.backend.calculator.model.CalculationMode;
 import com.saiguru.backend.calculator.model.CalculationRequestV2;
@@ -19,14 +19,16 @@ class CalculationEngineServiceTest {
 
     private final CalculationEngineService service = new CalculationEngineService(
         new CatalogService(new ObjectMapper()),
-        new FormulaRegistry()
+        new FormulaRegistry(),
+        new DensityCatalogService(new ObjectMapper())
     );
 
     @Test
     void calculatesRoundBarWeightFromQuantity() {
         CalculationRequestV2 request = new CalculationRequestV2();
         request.setCalculatorId("rolled_round_bar");
-        request.setMaterialId("steel");
+        request.setMetal("steel");
+        request.setAlloy("carbon");
         request.setPiecesOrQty(2.0);
         request.setMode(CalculationMode.QTY_TO_WEIGHT);
         request.setDimensions(List.of(
@@ -34,11 +36,12 @@ class CalculationEngineServiceTest {
             new DimensionInput("length", 1000.0, "mm")
         ));
 
-        double density = AlloyDensityCatalog.DENSITIES_KG_PER_M3.get("steel");
-        double radius = 5.0;
-        double volumePerPieceM3 = Math.PI * radius * radius * 1000.0 / 1_000_000_000.0;
-        double expectedVolume = volumePerPieceM3 * 2.0;
-        double expectedWeight = expectedVolume * density;
+        double density = 7.85;
+        double radiusCm = 0.5;
+        double lengthCm = 100.0;
+        double volumePerPieceCm3 = Math.PI * radiusCm * radiusCm * lengthCm;
+        double expectedVolume = (volumePerPieceCm3 * 2.0) / 1_000_000.0;
+        double expectedWeight = (volumePerPieceCm3 * density / 1000.0) * 2.0;
 
         var response = service.calculate(request);
         assertEquals(expectedVolume, response.getVolumeM3Raw(), RAW_TOLERANCE);
@@ -50,7 +53,8 @@ class CalculationEngineServiceTest {
     void calculatesSquareBarWeightFromQuantity() {
         CalculationRequestV2 request = new CalculationRequestV2();
         request.setCalculatorId("rolled_square_bar");
-        request.setMaterialId("aluminum_6061");
+        request.setMetal("aluminum");
+        request.setAlloy("6061");
         request.setPiecesOrQty(3.0);
         request.setMode(CalculationMode.QTY_TO_WEIGHT);
         request.setDimensions(List.of(
@@ -58,10 +62,12 @@ class CalculationEngineServiceTest {
             new DimensionInput("length", 2.0, "m")
         ));
 
-        double density = AlloyDensityCatalog.DENSITIES_KG_PER_M3.get("aluminum_6061");
-        double volumePerPieceM3 = 25.4 * 25.4 * 2000.0 / 1_000_000_000.0;
-        double expectedVolume = volumePerPieceM3 * 3.0;
-        double expectedWeight = expectedVolume * density;
+        double density = 2.6988;
+        double widthCm = 2.54;
+        double lengthCm = 200.0;
+        double volumePerPieceCm3 = widthCm * widthCm * lengthCm;
+        double expectedVolume = (volumePerPieceCm3 * 3.0) / 1_000_000.0;
+        double expectedWeight = (volumePerPieceCm3 * density / 1000.0) * 3.0;
 
         var response = service.calculate(request);
         assertEquals(expectedVolume, response.getVolumeM3Raw(), RAW_TOLERANCE);
@@ -73,7 +79,8 @@ class CalculationEngineServiceTest {
     void calculatesPipeRoundQuantityFromWeight() {
         CalculationRequestV2 request = new CalculationRequestV2();
         request.setCalculatorId("rolled_pipe_round");
-        request.setMaterialId("steel");
+        request.setMetal("steel");
+        request.setAlloy("carbon");
         request.setPiecesOrQty(12.5);
         request.setMode(CalculationMode.WEIGHT_TO_QTY);
         request.setDimensions(List.of(
@@ -82,16 +89,16 @@ class CalculationEngineServiceTest {
             new DimensionInput("length", 100.0, "cm")
         ));
 
-        double density = AlloyDensityCatalog.DENSITIES_KG_PER_M3.get("steel");
-        double outsideDiameterMm = 2.0 * 25.4;
-        double wallMm = 0.25 * 25.4;
-        double lengthMm = 1000.0;
-        double outerRadius = outsideDiameterMm / 2.0;
-        double innerRadius = outerRadius - wallMm;
-        double volumePerPieceM3 = Math.PI * (outerRadius * outerRadius - innerRadius * innerRadius) * lengthMm
-            / 1_000_000_000.0;
-        double expectedQuantity = 12.5 / (volumePerPieceM3 * density);
-        double expectedVolume = volumePerPieceM3 * expectedQuantity;
+        double density = 7.85;
+        double outsideDiameterCm = 2.0 * 2.54;
+        double wallCm = 0.25 * 2.54;
+        double lengthCm = 100.0;
+        double outerRadius = outsideDiameterCm / 2.0;
+        double innerRadius = outerRadius - wallCm;
+        double volumePerPieceCm3 = Math.PI * (outerRadius * outerRadius - innerRadius * innerRadius) * lengthCm;
+        double unitWeightKg = (volumePerPieceCm3 * density) / 1000.0;
+        double expectedQuantity = 12.5 / unitWeightKg;
+        double expectedVolume = (volumePerPieceCm3 * expectedQuantity) / 1_000_000.0;
 
         var response = service.calculate(request);
         assertEquals(expectedQuantity, response.getQuantityRaw(), RAW_TOLERANCE);
