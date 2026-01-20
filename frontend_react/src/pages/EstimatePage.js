@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import Calculator from '../components/Calculator';
 import ReceiptPreview from '../components/ReceiptPreview';
+import ViewEstimateItemModal from '../components/ViewEstimateItemModal';
 import {
   createNewEstimateSession,
   getSettings,
@@ -54,6 +55,8 @@ const EstimatePage = () => {
   const [session, setSession] = useState(buildEmptySession);
   const [customerErrors, setCustomerErrors] = useState({});
   const [settings, setSettings] = useState(getSettings());
+  const [viewingItem, setViewingItem] = useState(null);
+  const [editingItemId, setEditingItemId] = useState(null);
 
   useEffect(() => {
     persistCurrentEstimateSession(session);
@@ -104,6 +107,30 @@ const EstimatePage = () => {
 
   const handleAddLineItem = (lineItem) => {
     setSession((prev) => {
+      if (editingItemId) {
+        const index = prev.items.findIndex((item) => item.lineId === editingItemId);
+        if (index >= 0) {
+          const existingItem = prev.items[index];
+          const updatedItem = {
+            ...lineItem,
+            lineId: existingItem.lineId,
+            createdAt: existingItem.createdAt,
+          };
+          const items = prev.items.map((item, itemIndex) =>
+            itemIndex === index ? updatedItem : item
+          );
+          const totals = calculateTotals(items);
+          const nextSession = {
+            ...prev,
+            items,
+            totals,
+            updatedAt: new Date().toISOString(),
+          };
+          upsertHistoryEntry(nextSession);
+          return nextSession;
+        }
+      }
+
       const incomingSignature = [
         lineItem.shape?.id,
         lineItem.alloy?.id,
@@ -173,6 +200,9 @@ const EstimatePage = () => {
       upsertHistoryEntry(nextSession);
       return nextSession;
     });
+    if (editingItemId) {
+      setEditingItemId(null);
+    }
   };
 
   const handleRemoveLineItem = (lineId) => {
@@ -208,6 +238,22 @@ const EstimatePage = () => {
     window.addEventListener('afterprint', restoreTitle);
     window.print();
   };
+
+  const handleViewItem = (item) => {
+    setViewingItem(item);
+    if (editingItemId) {
+      setEditingItemId(null);
+    }
+  };
+
+  const handleEditItem = (item) => {
+    setEditingItemId(item.lineId);
+    setViewingItem(null);
+  };
+
+  const closeView = () => setViewingItem(null);
+
+  const editingItem = editingItemId ? items.find((item) => item.lineId === editingItemId) : null;
 
   const tableRows = useMemo(
     () =>
@@ -291,6 +337,7 @@ const EstimatePage = () => {
         settings={settings}
         onAddLineItem={handleAddLineItem}
         validateCustomer={validateCustomer}
+        prefillItem={editingItem}
       />
 
       <section className="estimate-items">
@@ -338,13 +385,35 @@ const EstimatePage = () => {
                         : 'n/a'}
                     </td>
                     <td>
-                      <button
-                        type="button"
-                        className="link-button"
-                        onClick={() => handleRemoveLineItem(item.lineId)}
-                      >
-                        Remove
-                      </button>
+                      <div className="action-buttons">
+                        <button
+                          type="button"
+                          className="icon-button"
+                          title="View"
+                          aria-label="View"
+                          onClick={() => handleViewItem(item)}
+                        >
+                          👁
+                        </button>
+                        <button
+                          type="button"
+                          className="icon-button"
+                          title="Edit"
+                          aria-label="Edit"
+                          onClick={() => handleEditItem(item)}
+                        >
+                          ✏️
+                        </button>
+                        <button
+                          type="button"
+                          className="icon-button danger"
+                          title="Remove"
+                          aria-label="Remove"
+                          onClick={() => handleRemoveLineItem(item.lineId)}
+                        >
+                          🗑
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -362,6 +431,12 @@ const EstimatePage = () => {
           </table>
         </div>
       </section>
+
+      <ViewEstimateItemModal
+        item={viewingItem}
+        onClose={closeView}
+        onEdit={viewingItem ? () => handleEditItem(viewingItem) : null}
+      />
 
       <section className="receipt-section">
         <div className="receipt-title-row">

@@ -773,6 +773,10 @@ select {
   font-weight: 600;
 }
 
+.estimate-table tbody tr:hover {
+  background: #fafafa;
+}
+
 .estimate-table tfoot td {
   font-weight: 600;
 }
@@ -791,6 +795,32 @@ select {
   font-size: 13px;
   padding: 0;
   text-decoration: underline;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.icon-button {
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px;
+  border-radius: 6px;
+  line-height: 1;
+  color: #444;
+}
+
+.icon-button:hover {
+  background: #f1f1f1;
+}
+
+.icon-button.danger:hover {
+  background: #ffeceb;
+  color: #b00020;
 }
 
 .history-grid {
@@ -922,9 +952,90 @@ select {
     align-items: flex-start;
   }
 
-  .receipt-meta {
-    text-align: left;
-  }
+.receipt-meta {
+  text-align: left;
+}
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  z-index: 50;
+}
+
+.modal-content {
+  background: #fff;
+  border-radius: 12px;
+  padding: 18px;
+  width: min(640px, 100%);
+  max-height: 90vh;
+  overflow: auto;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.modal-header h3 {
+  margin: 0;
+}
+
+.modal-body {
+  display: grid;
+  gap: 16px;
+}
+
+.modal-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  font-size: 13px;
+}
+
+.modal-grid span {
+  display: block;
+  color: #6a6a6a;
+  font-size: 11px;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.modal-dimensions h4 {
+  margin: 0 0 8px;
+}
+
+.modal-dimensions p {
+  margin: 0 0 8px;
+  color: #4a4a4a;
+  word-break: break-word;
+}
+
+.dimension-list {
+  display: grid;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.dimension-list div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 8px;
 }
 
 @media print {
@@ -937,7 +1048,8 @@ select {
   }
 
   .topbar,
-  .page > *:not(.receipt-section) {
+  .page > *:not(.receipt-section),
+  .modal-overlay {
     display: none !important;
   }
 

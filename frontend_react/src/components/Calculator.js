@@ -98,7 +98,7 @@ const buildDimensionsPayload = (calculator, dimensions) => {
   }, {});
 };
 
-const Calculator = ({ estimateNo, settings, onAddLineItem, validateCustomer }) => {
+const Calculator = ({ estimateNo, settings, onAddLineItem, validateCustomer, prefillItem }) => {
   const [catalog, setCatalog] = useState(null);
   const [catalogError, setCatalogError] = useState('');
   const [densityCatalog, setDensityCatalog] = useState(null);
@@ -154,6 +154,48 @@ const Calculator = ({ estimateNo, settings, onAddLineItem, validateCustomer }) =
     fetchCatalog();
     fetchDensityCatalog();
   }, []);
+
+  useEffect(() => {
+    if (!prefillItem || !catalog || !densityCatalog) return;
+    const calculator = catalog.calculators?.find((entry) => entry.id === prefillItem.shape?.id);
+    if (calculator) {
+      setActiveCalculatorId(calculator.id);
+      setActiveMenuLabel(calculator.menuLabel);
+    }
+    const metalIdFromItem = prefillItem.metal?.id;
+    let nextMetalId = metalIdFromItem;
+    if (!nextMetalId && densityCatalog?.metals) {
+      const metalMatch = densityCatalog.metals.find((entry) =>
+        entry.alloys?.some((alloyEntry) => alloyEntry.id === prefillItem.alloy?.id)
+      );
+      nextMetalId = metalMatch?.id || '';
+    }
+    if (nextMetalId) {
+      setMetal(nextMetalId);
+    }
+    if (prefillItem.alloy?.id) {
+      setAlloy(prefillItem.alloy.id);
+    }
+    if (prefillItem.mode) {
+      setMode(prefillItem.mode);
+    }
+    if (prefillItem.pieces != null) {
+      setPiecesOrQty(String(prefillItem.pieces));
+    }
+    const baseDimensions = buildDimensionState(calculator);
+    const filledDimensions = { ...baseDimensions };
+    Object.entries(prefillItem.dimensions || {}).forEach(([key, value]) => {
+      if (!filledDimensions[key]) return;
+      filledDimensions[key] = {
+        ...filledDimensions[key],
+        value: value?.value ?? '',
+        unit: value?.unit || filledDimensions[key].unit,
+      };
+    });
+    setDimensions(filledDimensions);
+    setResult(null);
+    setError('');
+  }, [prefillItem, catalog, densityCatalog]);
 
   const menuItems = useMemo(() => {
     if (!catalog?.calculators) return [];
@@ -460,6 +502,10 @@ const Calculator = ({ estimateNo, settings, onAddLineItem, validateCustomer }) =
     const lineItem = {
       lineId: `line_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
       estimateNo,
+      metal: {
+        id: selectedMetal?.id || '',
+        label: selectedMetal?.label || '',
+      },
       alloy: {
         id: selectedAlloy?.id || '',
         label: selectedAlloy?.label || '',
@@ -481,6 +527,7 @@ const Calculator = ({ estimateNo, settings, onAddLineItem, validateCustomer }) =
         unitWeightKg: calculation.unitWeightKg ?? null,
         volumeM3: calculation.volumeM3 ?? null,
       },
+      densityGcm3: densityGcm3 ?? null,
       createdAt: new Date().toISOString(),
     };
 
