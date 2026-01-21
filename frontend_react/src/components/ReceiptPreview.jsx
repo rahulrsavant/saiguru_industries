@@ -22,7 +22,7 @@ const ReceiptPreview = forwardRef(({ session }, ref) => {
 
   return (
     <div className="receipt-preview" ref={ref}>
-      <div className="receipt-page">
+      <div className="receipt-page" id="pdf-content">
         <header className="receipt-header">
           <div>
             <h2>Estimate Receipt</h2>

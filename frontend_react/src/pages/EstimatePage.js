@@ -439,12 +439,12 @@ const EstimatePage = () => {
       />
 
       <section className="receipt-section">
-        <div className="receipt-title-row">
+        <div className="receipt-title-row no-print">
           <div>
             <h2>Receipt Preview</h2>
             <p className="subtext">This is how your PDF will look when printed.</p>
           </div>
-          <div className="receipt-actions">
+          <div className="receipt-actions no-print">
             <button type="button" className="primary" onClick={handlePrint} disabled={!canPrint}>
               Print Receipt (PDF)
             </button>
