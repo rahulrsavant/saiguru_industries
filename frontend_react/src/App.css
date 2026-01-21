@@ -652,6 +652,9 @@ select {
 
 .estimate-header h1 {
   margin: 4px 0 0;
+  font-size: 20px;
+  letter-spacing: 0.4px;
+  word-break: break-all;
 }
 
 .estimate-meta {
