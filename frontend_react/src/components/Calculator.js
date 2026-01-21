@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { DEFAULT_QUANTITY } from '../data/metalCalculatorConfig';
+import { currencyCode } from '../constants/currency';
+import { formatCurrency } from '../utils/formatCurrency';
 import ShapeDiagramCard from './ShapeDiagramCard';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8080';
@@ -737,7 +739,7 @@ const Calculator = ({ estimateNo, settings, onAddLineItem, validateCustomer, pre
                 </div>
                 <div className="field-row">
                   <label>
-                    Price per 1 meter ($)
+                    Price per 1 meter ({currencyCode})
                     <input
                       type="text"
                       inputMode="decimal"
@@ -746,7 +748,7 @@ const Calculator = ({ estimateNo, settings, onAddLineItem, validateCustomer, pre
                     />
                   </label>
                   <label>
-                    Price per ton ($)
+                    Price per ton ({currencyCode})
                     <input
                       type="text"
                       inputMode="decimal"
@@ -823,12 +825,12 @@ const Calculator = ({ estimateNo, settings, onAddLineItem, validateCustomer, pre
                   <strong>{`${formatMetric(sheetMetrics?.weightPerMeter, 3)} kg`}</strong>
                 </div>
                 <div>
-                  <span>{`Cost of a ton at a price of ${pricePerMeter || '__'} per meter, $`}</span>
-                  <strong>{formatMetric(sheetMetrics?.costPerTonFromPricePerMeter, 2)}</strong>
+                  <span>{`Cost of a ton at a price of ${formatCurrency(pricePerMeter)} per meter`}</span>
+                  <strong>{formatCurrency(sheetMetrics?.costPerTonFromPricePerMeter)}</strong>
                 </div>
                 <div>
-                  <span>{`Price per meter of sheet at the cost of a ton ${pricePerTon || '__'}, $`}</span>
-                  <strong>{formatMetric(sheetMetrics?.pricePerMeterFromTonPrice, 2)}</strong>
+                  <span>{`Price per meter of sheet at the cost of a ton ${formatCurrency(pricePerTon)}`}</span>
+                  <strong>{formatCurrency(sheetMetrics?.pricePerMeterFromTonPrice)}</strong>
                 </div>
                 <div>
                   <span>{`Total weight of ${dimensions.length?.value || '__'} meters of sheet, kg`}</span>
