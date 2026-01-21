@@ -1,0 +1,360 @@
+{
+  "general": {
+    "na": "लागू नाही",
+    "dash": "—"
+  },
+  "language": {
+    "label": "भाषा",
+    "englishShort": "EN",
+    "hindi": "हिंदी",
+    "marathi": "मराठी"
+  },
+  "nav": {
+    "home": "मुख्यपृष्ठ",
+    "estimate": "आकलन",
+    "history": "इतिहास",
+    "settings": "सेटिंग्स",
+    "profile": "प्रोफाइल",
+    "userManagement": "यूजर व्यवस्थापन",
+    "logout": "लॉगआउट"
+  },
+  "app": {
+    "tagline": "मेटल प्रॉडक्ट्स कॅल्क्युलेटर"
+  },
+  "home": {
+    "brand": "Saiguru Industries",
+    "headline": "धातू स्टॉकसाठी काही मिनिटांत झटपट आकलन.",
+    "subheadline": "नवीन आकलन सुरू करा, जतन केलेला इतिहास पाहा, किंवा तुमच्या शॉपच्या पसंती बदला.",
+    "startNewEstimate": "नवीन आकलन सुरू करा",
+    "startNewEstimateDesc": "नवीन ग्राहक तपशील आणि रिकामे लाइन आयटम्स.",
+    "history": "इतिहास",
+    "historyDesc": "जतन केलेले आकलन पाहा आणि पुन्हा उघडा.",
+    "settings": "सेटिंग्स",
+    "settingsDesc": "डीफॉल्ट अपडेट करा आणि इतिहास साफ करा."
+  },
+  "login": {
+    "title": "साइन इन",
+    "subtitle": "सुरू ठेवण्यासाठी तुमचे Saiguru Industries खाते वापरा.",
+    "usernameOrEmail": "यूजरनेम किंवा ईमेल",
+    "password": "पासवर्ड",
+    "signingIn": "साइन इन होत आहे...",
+    "login": "लॉगिन",
+    "invalidCredentials": "यूजरनेम किंवा पासवर्ड चुकीचा आहे.",
+    "unableToLogin": "लॉगिन झाले नाही. कृपया पुन्हा प्रयत्न करा."
+  },
+  "settings": {
+    "title": "सेटिंग्स",
+    "subtitle": "पसंती या डिव्हाइसवर लोकली जतन केल्या जातात.",
+    "defaultPrefix": "डीफॉल्ट प्रीफिक्स",
+    "defaultUnitSystem": "डीफॉल्ट युनिट सिस्टीम",
+    "metric": "मीट्रिक",
+    "imperial": "इम्पीरियल",
+    "save": "सेटिंग्स सेव करा",
+    "clearHistory": "संपूर्ण इतिहास साफ करा",
+    "saved": "सेटिंग्स सेव झाल्या.",
+    "cleared": "इतिहास साफ झाला.",
+    "confirmClear": "संपूर्ण आकलन इतिहास साफ करायचा? हे परत आणता येणार नाही."
+  },
+  "history": {
+    "title": "आकलन इतिहास",
+    "subtitle": "जतन केलेली आकलने या डिव्हाइसवर लोकली जतन आहेत.",
+    "empty": "आत्ता कोणतेही जतन केलेले आकलन नाही.",
+    "estimateLabel": "आकलन",
+    "unknownCustomer": "अज्ञात ग्राहक",
+    "itemsCount": "{{count}} आयटम्स",
+    "viewDetails": "तपशील पहा",
+    "loadToEdit": "एडिटसाठी लोड करा"
+  },
+  "historyDetail": {
+    "notFound": "आकलन सापडले नाही.",
+    "eyebrow": "आकलन तपशील",
+    "updated": "अपडेटेड {{date}}",
+    "unknownCustomer": "अज्ञात ग्राहक",
+    "noBusinessName": "बिझनेस नाव नाही",
+    "noMobile": "मोबाइल नाही",
+    "noEmail": "ईमेल नाही",
+    "items": "आयटम्स",
+    "totalWeight": "एकूण वजन",
+    "backToHistory": "इतिहासाकडे परत"
+  },
+  "estimate": {
+    "eyebrow": "आकलन",
+    "created": "तयार केले {{date}}",
+    "unitSystem": "युनिट सिस्टीम",
+    "items": "आयटम्स",
+    "totalWeight": "एकूण वजन",
+    "customerDetailsTitle": "ग्राहक तपशील",
+    "customerDetailsSubtitle": "आवश्यक फील्ड्समुळे आकलन शोधायला मदत होते.",
+    "customerName": "ग्राहकाचे नाव",
+    "businessName": "बिझनेस नाव",
+    "mobileNo": "मोबाइल नंबर",
+    "email": "ईमेल",
+    "itemsTitle": "आकलन आयटम्स",
+    "itemsSubtitle": "प्रत्येक आयटम जोडल्यावर इतिहासात सेव होतो.",
+    "noItems": "आत्ता कोणतेही आयटम नाहीत. गणना सेव करण्यासाठी आकलनात जोडा वापरा.",
+    "totals": "एकूण",
+    "receiptPreviewTitle": "रसीद प्रीव्ह्यू",
+    "receiptPreviewSubtitle": "प्रिंट केल्यावर तुमचा PDF असा दिसेल.",
+    "printReceipt": "रसीद प्रिंट करा (PDF)",
+    "addItemsToPrint": "रसीद प्रिंट करण्यासाठी आयटम जोडा.",
+    "recommendCustomer": "प्रिंटिंगसाठी ग्राहकाचे नाव आणि मोबाइल सुचवले जाते.",
+    "actionView": "पहा",
+    "actionEdit": "एडिट",
+    "actionRemove": "काढा"
+  },
+  "validation": {
+    "customerNameRequired": "ग्राहकाचे नाव आवश्यक आहे.",
+    "mobileRequired": "मोबाइल नंबर आवश्यक आहे.",
+    "mobileInvalid": "वैध 10-अंकी मोबाइल नंबर टाका.",
+    "emailInvalid": "वैध ईमेल पत्ता टाका.",
+    "mergeDuplicate": "हा आयटम आधीच जोडला आहे. विद्यमान लाईनमध्ये मात्रा जोडायची आहे का?",
+    "customerRequiredForItems": "आयटम जोडण्यापूर्वी ग्राहक तपशील आवश्यक आहेत.",
+    "fieldRequired": "{{field}} आवश्यक आहे.",
+    "fieldPositive": "{{field}} ही धनात्मक संख्या असावी.",
+    "fieldMin": "{{field}} किमान {{min}} असावे.",
+    "selectCalculator": "कॅल्क्युलेटर निवडा.",
+    "selectMetalAlloy": "धातू आणि अलॉय निवडा.",
+    "selectMetalAlloyDensity": "वैध डेंसिटी असलेले धातू आणि अलॉय निवडा.",
+    "quantityGreaterThanZero": "मात्रा किंवा वजन शून्यापेक्षा जास्त असावे.",
+    "quantityInteger": "मात्रा ही धनात्मक पूर्णांक असावी.",
+    "fixHighlighted": "हायलाइट केलेली फील्ड्स दुरुस्त करा."
+  },
+  "calculator": {
+    "title": "मेटल वेट कॅल्क्युलेटर",
+    "subtitle": "अचूक युनिट कन्व्हर्जनसह कॅटलॉग-आधारित कॅल्क्युलेटरने वजन मोजा.",
+    "catalog": "कॅटलॉग",
+    "metal": "धातू",
+    "alloy": "अलॉय",
+    "density": "डेंसिटी (g/cm3)",
+    "calculator": "कॅल्क्युलेटर",
+    "mode": "मोड",
+    "qtyToWeight": "मात्रेतून वजन",
+    "weightToQty": "वजनातून मात्रा",
+    "totalWeightKg": "एकूण वजन (kg)",
+    "quantity": "मात्रा",
+    "dimensions": "आयाम",
+    "pricing": "प्राइसिंग",
+    "lengthM": "लांबी (m)",
+    "totalWeightLabel": "एकूण वजन (kg)",
+    "pricePerMeter": "1 meter चे मूल्य ({{currency}})",
+    "pricePerTon": "प्रति ton मूल्य ({{currency}})",
+    "enableDebug": "डिबग आउटपुट सक्षम करा",
+    "calculating": "गणना होत आहे...",
+    "calculate": "गणना करा",
+    "reset": "रीसेट",
+    "addToEstimate": "आकलनात जोडा",
+    "estimatedQuantity": "अंदाजित मात्रा",
+    "calculatedWeight": "गणना केलेले वजन",
+    "resultCalculator": "कॅल्क्युलेटर: {{label}}",
+    "selectCalculator": "कॅल्क्युलेटर निवडा",
+    "volume": "आयतन",
+    "unitWeight": "युनिट वजन",
+    "inputWeight": "इनपुट वजन",
+    "weightOfOneMeter": "1 meter चे वजन",
+    "costOfTonAtPricePerMeter": "{{price}} प्रति meter च्या दराने एक ton ची किंमत",
+    "pricePerMeterFromTon": "एक ton {{price}} च्या दराने sheet चे प्रति meter मूल्य",
+    "totalWeightOfLength": "sheet च्या {{length}} meter लांबीचे एकूण वजन, kg",
+    "totalLengthOfWeight": "sheet चे {{weight}} kilograms एकूण लांबी, m",
+    "resultNote": "युनिट्स अंतर्गतपणे centimeters मध्ये नॉर्मलाइझ केली जातात. अंतिम मूल्ये डिस्प्ले साठी राऊंड केली जातात.",
+    "debugDetails": "डिबग तपशील",
+    "densityGcm3": "डेंसिटी (g/cm3)",
+    "unitWeightKg": "युनिट वजन (kg)",
+    "rawVolumeM3": "कच्चे आयतन (m3)",
+    "rawWeightKg": "कच्चे वजन (kg)",
+    "rawQuantity": "कच्ची मात्रा",
+    "normalizedDimensions": "नॉर्मलाइझ्ड आयाम (mm)",
+    "noNormalizedDimensions": "नॉर्मलाइझ केलेले आयाम मिळाले नाहीत.",
+    "errorCatalog": "कॅटलॉग लोड झाला नाही.",
+    "errorDensity": "डेंसिटी कॅटलॉग लोड झाला नाही.",
+    "errorCalculationFailed": "गणना अयशस्वी झाली.",
+    "errorUnableToCalculate": "वजनाची गणना होऊ शकली नाही."
+  },
+  "catalog": {
+    "menu": {
+      "pipe": "Pipe",
+      "angle": "Angle",
+      "rebar": "Rebar",
+      "beam": "Beam",
+      "channel": "Channel",
+      "flatBar": "समतल bar",
+      "sheet": "Sheet",
+      "squareBar": "चौरस bar",
+      "roundBar": "गोल bar",
+      "bolt": "Bolt",
+      "screw": "Screw",
+      "nut": "Nut"
+    },
+    "subtype": {
+      "round": "गोल",
+      "square": "चौरस",
+      "rectangular": "आयताकृती",
+      "equal": "समान",
+      "unequal": "असमान",
+      "c": "C",
+      "u": "U",
+      "i": "I",
+      "t": "T",
+      "hex": "हेक्स",
+      "machine": "मशीन"
+    },
+    "field": {
+      "diameter": "व्यास",
+      "length": "लांबी",
+      "width": "रुंदी",
+      "side": "बाजू",
+      "thickness": "जाडी",
+      "outsideDiameter": "बाह्य व्यास (OD)",
+      "outsideWidth": "बाह्य रुंदी",
+      "outsideHeight": "बाह्य उंची",
+      "wallThickness": "भिंत जाडी",
+      "height": "उंची",
+      "leg": "लेग",
+      "legA": "लेग A",
+      "legB": "लेग B",
+      "flangeWidth": "फ्लॅंज रुंदी",
+      "flangeThickness": "फ्लॅंज जाडी",
+      "webThickness": "वेब जाडी"
+    }
+  },
+  "diagram": {
+    "pipeRound": {
+      "label": "गोल Pipe डायग्राम",
+      "alt": "गोल Pipe चे आयामांचा डायग्राम"
+    },
+    "pipeSquare": {
+      "label": "चौरस Pipe डायग्राम",
+      "alt": "चौरस Pipe चे आयामांचा डायग्राम"
+    },
+    "pipeRectangular": {
+      "label": "आयताकृती Pipe डायग्राम",
+      "alt": "आयताकृती Pipe चे आयामांचा डायग्राम"
+    },
+    "angleEqual": {
+      "label": "समान Angle डायग्राम",
+      "alt": "समान Angle चे आयामांचा डायग्राम"
+    },
+    "angleUnequal": {
+      "label": "असमान Angle डायग्राम",
+      "alt": "असमान Angle चे आयामांचा डायग्राम"
+    },
+    "channelC": {
+      "label": "Channel C डायग्राम",
+      "alt": "Channel C चे आयामांचा डायग्राम"
+    },
+    "channelU": {
+      "label": "Channel U डायग्राम",
+      "alt": "Channel U चे आयामांचा डायग्राम"
+    },
+    "beamI": {
+      "label": "I Beam डायग्राम",
+      "alt": "I Beam चे आयामांचा डायग्राम"
+    },
+    "beamT": {
+      "label": "T Beam डायग्राम",
+      "alt": "T Beam चे आयामांचा डायग्राम"
+    },
+    "flatBar": {
+      "label": "समतल bar डायग्राम",
+      "alt": "समतल bar चे आयामांचा डायग्राम"
+    },
+    "roundBar": {
+      "label": "गोल bar डायग्राम",
+      "alt": "गोल bar चे आयामांचा डायग्राम"
+    },
+    "sheet": {
+      "label": "Sheet डायग्राम",
+      "alt": "Sheet ची जाडी आणि रुंदीचा डायग्राम"
+    },
+    "squareBar": {
+      "label": "चौरस bar डायग्राम",
+      "alt": "चौरस bar चे आयामांचा डायग्राम"
+    },
+    "rebar": {
+      "label": "Rebar डायग्राम",
+      "alt": "Rebar चा व्यासाचा डायग्राम"
+    },
+    "boltHex": {
+      "label": "हेक्स Bolt डायग्राम",
+      "alt": "हेक्स Bolt चे आयामांचा डायग्राम"
+    },
+    "nutHex": {
+      "label": "हेक्स Nut डायग्राम",
+      "alt": "हेक्स Nut चे आयामांचा डायग्राम"
+    },
+    "screwMachine": {
+      "label": "मशीन Screw डायग्राम",
+      "alt": "मशीन Screw चे आयामांचा डायग्राम"
+    },
+    "default": {
+      "label": "कोणताही डायग्राम उपलब्ध नाही",
+      "alt": "कोणताही डायग्राम उपलब्ध नाही"
+    }
+  },
+  "table": {
+    "sr": "क्रमांक",
+    "shape": "आकार",
+    "alloy": "अलॉय",
+    "pieces": "पीस",
+    "dimensions": "आयाम",
+    "resultKg": "निकाल (kg)",
+    "actions": "क्रिया"
+  },
+  "receipt": {
+    "title": "आकलन रसीद",
+    "company": "Saiguru Industries",
+    "estimateNo": "आकलन क्रमांक",
+    "date": "तारीख",
+    "customerName": "ग्राहकाचे नाव",
+    "businessName": "बिझनेस नाव",
+    "mobileNo": "मोबाइल नंबर",
+    "email": "ईमेल",
+    "noItems": "कोणतेही आयटम जोडलेले नाहीत.",
+    "total": "एकूण"
+  },
+  "profile": {
+    "title": "प्रोफाइल",
+    "signedInAs": "साइन इन: {{user}}",
+    "currentPassword": "सध्याचा पासवर्ड",
+    "newPassword": "नवीन पासवर्ड",
+    "confirmNewPassword": "नवीन पासवर्डची पुष्टी करा",
+    "updating": "अपडेट होत आहे...",
+    "changePassword": "पासवर्ड बदला",
+    "errorChangePassword": "पासवर्ड बदलता आला नाही. कृपया सध्याचा पासवर्ड आणि पॉलिसी तपासा.",
+    "errorChangePasswordGeneric": "पासवर्ड बदलता आला नाही.",
+    "successPasswordUpdated": "पासवर्ड अपडेट झाला. कृपया पुन्हा साइन इन करा."
+  },
+  "admin": {
+    "title": "यूजर व्यवस्थापन",
+    "subtitle": "यूजर तयार करा, पासवर्ड रीसेट करा आणि प्रवेश व्यवस्थापित करा.",
+    "usernameOrEmail": "यूजरनेम किंवा ईमेल",
+    "tempPassword": "तात्पुरता पासवर्ड",
+    "role": "भूमिका",
+    "createUser": "यूजर तयार करा",
+    "creating": "तयार होत आहे...",
+    "errorCreateUserPolicy": "यूजर तयार झाला नाही. पासवर्ड पॉलिसी तपासा आणि पुन्हा प्रयत्न करा.",
+    "errorCreateUser": "यूजर तयार झाला नाही.",
+    "promptTempPassword": "नवीन तात्पुरता पासवर्ड टाका",
+    "errorResetPassword": "पासवर्ड रीसेट झाला नाही. पॉलिसी: 8 अक्षरे, 1 मोठे अक्षर, 1 नंबर.",
+    "username": "यूजरनेम",
+    "status": "स्थिती",
+    "actions": "क्रिया",
+    "active": "सक्रिय",
+    "disabled": "अक्षम",
+    "resetPassword": "पासवर्ड रीसेट करा",
+    "enable": "सक्रिय करा",
+    "disable": "अक्षम करा"
+  },
+  "itemDetails": {
+    "title": "आयटम तपशील",
+    "shape": "आकार",
+    "alloy": "अलॉय",
+    "pieces": "पीस",
+    "density": "डेंसिटी (g/cm3)",
+    "resultKg": "निकाल (kg)",
+    "created": "तयार केले",
+    "dimensions": "आयाम",
+    "close": "बंद करा",
+    "editItem": "हा आयटम एडिट करा",
+    "closeTitle": "बंद करा"
+  }
+}

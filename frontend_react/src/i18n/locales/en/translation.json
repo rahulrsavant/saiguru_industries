@@ -1,0 +1,360 @@
+{
+  "general": {
+    "na": "n/a",
+    "dash": "—"
+  },
+  "language": {
+    "label": "Language",
+    "englishShort": "EN",
+    "hindi": "हिंदी",
+    "marathi": "मराठी"
+  },
+  "nav": {
+    "home": "Home",
+    "estimate": "Estimate",
+    "history": "History",
+    "settings": "Settings",
+    "profile": "Profile",
+    "userManagement": "User Management",
+    "logout": "Logout"
+  },
+  "app": {
+    "tagline": "Metal products calculator"
+  },
+  "home": {
+    "brand": "Saiguru Industries",
+    "headline": "Quick estimates for metal stock in minutes.",
+    "subheadline": "Start a new estimate, review saved history, or tweak preferences for your shop.",
+    "startNewEstimate": "Start New Estimate",
+    "startNewEstimateDesc": "Fresh customer details and empty line items.",
+    "history": "History",
+    "historyDesc": "Browse and reopen saved estimates.",
+    "settings": "Settings",
+    "settingsDesc": "Update defaults and clear history."
+  },
+  "login": {
+    "title": "Sign in",
+    "subtitle": "Use your Saiguru Industries account to continue.",
+    "usernameOrEmail": "Username or email",
+    "password": "Password",
+    "signingIn": "Signing in...",
+    "login": "Login",
+    "invalidCredentials": "Invalid username or password.",
+    "unableToLogin": "Unable to login. Please try again."
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Preferences are stored locally for this device.",
+    "defaultPrefix": "Default prefix",
+    "defaultUnitSystem": "Default unit system",
+    "metric": "Metric",
+    "imperial": "Imperial",
+    "save": "Save settings",
+    "clearHistory": "Clear all history",
+    "saved": "Settings saved.",
+    "cleared": "History cleared.",
+    "confirmClear": "Clear all estimate history? This cannot be undone."
+  },
+  "history": {
+    "title": "Estimate history",
+    "subtitle": "Saved estimates are stored locally on this device.",
+    "empty": "No saved estimates yet.",
+    "estimateLabel": "Estimate",
+    "unknownCustomer": "Unknown customer",
+    "itemsCount": "{{count}} items",
+    "viewDetails": "View details",
+    "loadToEdit": "Load to Edit"
+  },
+  "historyDetail": {
+    "notFound": "Estimate not found.",
+    "eyebrow": "Estimate detail",
+    "updated": "Updated {{date}}",
+    "unknownCustomer": "Unknown customer",
+    "noBusinessName": "No business name",
+    "noMobile": "No mobile",
+    "noEmail": "No email",
+    "items": "Items",
+    "totalWeight": "Total weight",
+    "backToHistory": "Back to History"
+  },
+  "estimate": {
+    "eyebrow": "Estimate",
+    "created": "Created {{date}}",
+    "unitSystem": "Unit system",
+    "items": "Items",
+    "totalWeight": "Total weight",
+    "customerDetailsTitle": "Customer details",
+    "customerDetailsSubtitle": "Required fields help keep estimates searchable.",
+    "customerName": "Customer Name",
+    "businessName": "Business Name",
+    "mobileNo": "Mobile No",
+    "email": "Email",
+    "itemsTitle": "Estimate items",
+    "itemsSubtitle": "Each item is saved to history when added.",
+    "noItems": "No items yet. Use Add to Estimate to capture the calculation.",
+    "totals": "Totals",
+    "receiptPreviewTitle": "Receipt Preview",
+    "receiptPreviewSubtitle": "This is how your PDF will look when printed.",
+    "printReceipt": "Print Receipt (PDF)",
+    "addItemsToPrint": "Add items to estimate to print receipt.",
+    "recommendCustomer": "Customer name and mobile are recommended for printing.",
+    "actionView": "View",
+    "actionEdit": "Edit",
+    "actionRemove": "Remove"
+  },
+  "validation": {
+    "customerNameRequired": "Customer name is required.",
+    "mobileRequired": "Mobile number is required.",
+    "mobileInvalid": "Enter a valid 10-digit mobile number.",
+    "emailInvalid": "Enter a valid email address.",
+    "mergeDuplicate": "This item is already added. Do you want to add the quantity to the existing line?",
+    "customerRequiredForItems": "Customer details are required before adding items.",
+    "fieldRequired": "{{field}} is required.",
+    "fieldPositive": "{{field}} must be a positive number.",
+    "fieldMin": "{{field}} must be at least {{min}}.",
+    "selectCalculator": "Select a calculator.",
+    "selectMetalAlloy": "Select a metal and alloy.",
+    "selectMetalAlloyDensity": "Select a metal and alloy with a valid density.",
+    "quantityGreaterThanZero": "Quantity or weight must be greater than zero.",
+    "quantityInteger": "Quantity must be a positive integer.",
+    "fixHighlighted": "Fix the highlighted fields."
+  },
+  "calculator": {
+    "title": "Metal Weight Calculator",
+    "subtitle": "Calculate weight using catalog-driven calculators with precise unit conversions.",
+    "catalog": "Catalog",
+    "metal": "Metal",
+    "alloy": "Alloy",
+    "density": "Density (g/cm3)",
+    "calculator": "Calculator",
+    "mode": "Mode",
+    "qtyToWeight": "Quantity to Weight",
+    "weightToQty": "Weight to Quantity",
+    "totalWeightKg": "Total Weight (kg)",
+    "quantity": "Quantity",
+    "dimensions": "Dimensions",
+    "pricing": "Pricing",
+    "lengthM": "Length (m)",
+    "totalWeightLabel": "Total weight (kg)",
+    "pricePerMeter": "Price per 1 meter ({{currency}})",
+    "pricePerTon": "Price per ton ({{currency}})",
+    "enableDebug": "Enable debug output",
+    "calculating": "Calculating...",
+    "calculate": "Calculate",
+    "reset": "Reset",
+    "addToEstimate": "Add to Estimate",
+    "estimatedQuantity": "Estimated Quantity",
+    "calculatedWeight": "Calculated Weight",
+    "resultCalculator": "Calculator: {{label}}",
+    "selectCalculator": "Select a calculator",
+    "volume": "Volume",
+    "unitWeight": "Unit weight",
+    "inputWeight": "Input Weight",
+    "weightOfOneMeter": "Weight of 1 meter",
+    "costOfTonAtPricePerMeter": "Cost of a ton at a price of {{price}} per meter",
+    "pricePerMeterFromTon": "Price per meter of sheet at the cost of a ton {{price}}",
+    "totalWeightOfLength": "Total weight of {{length}} meters of sheet, kg",
+    "totalLengthOfWeight": "Total length of {{weight}} kilograms of sheet, m",
+    "resultNote": "Units are normalized to centimeters internally. Final values are rounded for display.",
+    "debugDetails": "Debug details",
+    "densityGcm3": "Density (g/cm3)",
+    "unitWeightKg": "Unit Weight (kg)",
+    "rawVolumeM3": "Raw Volume (m3)",
+    "rawWeightKg": "Raw Weight (kg)",
+    "rawQuantity": "Raw Quantity",
+    "normalizedDimensions": "Normalized Dimensions (mm)",
+    "noNormalizedDimensions": "No normalized dimensions returned.",
+    "errorCatalog": "Unable to load catalog.",
+    "errorDensity": "Unable to load density catalog.",
+    "errorCalculationFailed": "Calculation failed.",
+    "errorUnableToCalculate": "Unable to calculate weight."
+  },
+  "catalog": {
+    "menu": {
+      "pipe": "Pipe",
+      "angle": "Angle",
+      "rebar": "Rebar",
+      "beam": "Beam",
+      "channel": "Channel",
+      "flatBar": "Flat bar",
+      "sheet": "Sheet",
+      "squareBar": "Square bar",
+      "roundBar": "Round bar",
+      "bolt": "Bolt",
+      "screw": "Screw",
+      "nut": "Nut"
+    },
+    "subtype": {
+      "round": "Round",
+      "square": "Square",
+      "rectangular": "Rectangular",
+      "equal": "Equal",
+      "unequal": "Unequal",
+      "c": "C",
+      "u": "U",
+      "i": "I",
+      "t": "T",
+      "hex": "Hex",
+      "machine": "Machine"
+    },
+    "field": {
+      "diameter": "Diameter",
+      "length": "Length",
+      "width": "Width",
+      "side": "Side",
+      "thickness": "Thickness",
+      "outsideDiameter": "Outside Diameter (OD)",
+      "outsideWidth": "Outside Width",
+      "outsideHeight": "Outside Height",
+      "wallThickness": "Wall Thickness",
+      "height": "Height",
+      "leg": "Leg",
+      "legA": "Leg A",
+      "legB": "Leg B",
+      "flangeWidth": "Flange Width",
+      "flangeThickness": "Flange Thickness",
+      "webThickness": "Web Thickness"
+    }
+  },
+  "diagram": {
+    "pipeRound": {
+      "label": "Round Pipe Diagram",
+      "alt": "Round pipe dimensions diagram"
+    },
+    "pipeSquare": {
+      "label": "Square Pipe Diagram",
+      "alt": "Square pipe dimensions diagram"
+    },
+    "pipeRectangular": {
+      "label": "Rectangular Pipe Diagram",
+      "alt": "Rectangular pipe dimensions diagram"
+    },
+    "angleEqual": {
+      "label": "Equal Angle Diagram",
+      "alt": "Equal angle dimensions diagram"
+    },
+    "angleUnequal": {
+      "label": "Unequal Angle Diagram",
+      "alt": "Unequal angle dimensions diagram"
+    },
+    "channelC": {
+      "label": "Channel C Diagram",
+      "alt": "Channel C dimensions diagram"
+    },
+    "channelU": {
+      "label": "Channel U Diagram",
+      "alt": "Channel U dimensions diagram"
+    },
+    "beamI": {
+      "label": "I Beam Diagram",
+      "alt": "I beam dimensions diagram"
+    },
+    "beamT": {
+      "label": "T Beam Diagram",
+      "alt": "T beam dimensions diagram"
+    },
+    "flatBar": {
+      "label": "Flat Bar Diagram",
+      "alt": "Flat bar dimensions diagram"
+    },
+    "roundBar": {
+      "label": "Round Bar Diagram",
+      "alt": "Round bar dimensions diagram"
+    },
+    "sheet": {
+      "label": "Sheet Diagram",
+      "alt": "Sheet thickness and width diagram"
+    },
+    "squareBar": {
+      "label": "Square Bar Diagram",
+      "alt": "Square bar dimensions diagram"
+    },
+    "rebar": {
+      "label": "Rebar Diagram",
+      "alt": "Rebar diameter diagram"
+    },
+    "boltHex": {
+      "label": "Hex Bolt Diagram",
+      "alt": "Hex bolt dimensions diagram"
+    },
+    "nutHex": {
+      "label": "Hex Nut Diagram",
+      "alt": "Hex nut dimensions diagram"
+    },
+    "screwMachine": {
+      "label": "Machine Screw Diagram",
+      "alt": "Machine screw dimensions diagram"
+    },
+    "default": {
+      "label": "No diagram available",
+      "alt": "No diagram available"
+    }
+  },
+  "table": {
+    "sr": "Sr",
+    "shape": "Shape",
+    "alloy": "Alloy",
+    "pieces": "Pieces",
+    "dimensions": "Dimensions",
+    "resultKg": "Result (kg)",
+    "actions": "Actions"
+  },
+  "receipt": {
+    "title": "Estimate Receipt",
+    "company": "Saiguru Industries",
+    "estimateNo": "Estimate No",
+    "date": "Date",
+    "customerName": "Customer Name",
+    "businessName": "Business Name",
+    "mobileNo": "Mobile No",
+    "email": "Email",
+    "noItems": "No items added.",
+    "total": "Total"
+  },
+  "profile": {
+    "title": "Profile",
+    "signedInAs": "Signed in as {{user}}",
+    "currentPassword": "Current password",
+    "newPassword": "New password",
+    "confirmNewPassword": "Confirm new password",
+    "updating": "Updating...",
+    "changePassword": "Change password",
+    "errorChangePassword": "Unable to change password. Verify your current password and policy.",
+    "errorChangePasswordGeneric": "Unable to change password.",
+    "successPasswordUpdated": "Password updated. Please sign in again."
+  },
+  "admin": {
+    "title": "User Management",
+    "subtitle": "Create users, reset passwords, and manage access.",
+    "usernameOrEmail": "Username or email",
+    "tempPassword": "Temporary password",
+    "role": "Role",
+    "createUser": "Create user",
+    "creating": "Creating...",
+    "errorCreateUserPolicy": "Unable to create user. Check password policy and try again.",
+    "errorCreateUser": "Unable to create user.",
+    "promptTempPassword": "Enter a new temporary password",
+    "errorResetPassword": "Unable to reset password. Ensure policy: 8 chars, 1 uppercase, 1 number.",
+    "username": "Username",
+    "status": "Status",
+    "actions": "Actions",
+    "active": "Active",
+    "disabled": "Disabled",
+    "resetPassword": "Reset password",
+    "enable": "Enable",
+    "disable": "Disable"
+  },
+  "itemDetails": {
+    "title": "Item details",
+    "shape": "Shape",
+    "alloy": "Alloy",
+    "pieces": "Pieces",
+    "density": "Density (g/cm3)",
+    "resultKg": "Result (kg)",
+    "created": "Created",
+    "dimensions": "Dimensions",
+    "close": "Close",
+    "editItem": "Edit this item",
+    "closeTitle": "Close"
+  }
+}

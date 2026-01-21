@@ -1,8 +1,10 @@
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { getEstimateHistory, setCurrentSessionFromHistory } from '../utils/estimateStorage';
+import useGlossaryTranslation from '../i18n/useGlossaryTranslation';
+import { formatDimensionsSummary, translateShapeLabel } from '../i18n/catalog';
 
-const formatIndiaDateTime = (isoString) => {
-  if (!isoString) return 'n/a';
+const formatIndiaDateTime = (isoString, t) => {
+  if (!isoString) return t('general.na');
   return new Intl.DateTimeFormat('en-GB', {
     timeZone: 'Asia/Kolkata',
     day: '2-digit',
@@ -18,6 +20,7 @@ const HistoryDetailPage = () => {
   const navigate = useNavigate();
   const history = getEstimateHistory();
   const estimate = history.find((entry) => entry.estimateNo === estimateNo);
+  const { t, i18n } = useGlossaryTranslation();
 
   const handleLoad = () => {
     if (!estimate) return;
@@ -28,7 +31,7 @@ const HistoryDetailPage = () => {
   if (!estimate) {
     return (
       <main className="page page-history">
-        <div className="empty-card">Estimate not found.</div>
+        <div className="empty-card">{t('historyDetail.notFound')}</div>
       </main>
     );
   }
@@ -36,29 +39,33 @@ const HistoryDetailPage = () => {
   return (
     <main className="page page-history-detail">
       <section className="section-title">
-        <p className="eyebrow">Estimate detail</p>
+        <p className="eyebrow">{t('historyDetail.eyebrow')}</p>
         <h1>{estimate.estimateNo}</h1>
-        <p className="subtext">Updated {formatIndiaDateTime(estimate.updatedAt || estimate.createdAt)}</p>
+        <p className="subtext">
+          {t('historyDetail.updated', {
+            date: formatIndiaDateTime(estimate.updatedAt || estimate.createdAt, t),
+          })}
+        </p>
       </section>
 
       <section className="history-detail-card">
         <div>
-          <h2>{estimate.customer?.name || 'Unknown customer'}</h2>
-          <p>{estimate.customer?.businessName || 'No business name'}</p>
-          <p>{estimate.customer?.mobile || 'No mobile'}</p>
-          <p>{estimate.customer?.email || 'No email'}</p>
+          <h2>{estimate.customer?.name || t('historyDetail.unknownCustomer')}</h2>
+          <p>{estimate.customer?.businessName || t('historyDetail.noBusinessName')}</p>
+          <p>{estimate.customer?.mobile || t('historyDetail.noMobile')}</p>
+          <p>{estimate.customer?.email || t('historyDetail.noEmail')}</p>
         </div>
         <div className="history-detail-meta">
           <div>
-            <span>Items</span>
+            <span>{t('historyDetail.items')}</span>
             <strong>{estimate.items?.length || 0}</strong>
           </div>
           <div>
-            <span>Total weight</span>
+            <span>{t('historyDetail.totalWeight')}</span>
             <strong>
               {Number.isFinite(estimate.totals?.totalWeightKg)
                 ? `${estimate.totals.totalWeightKg.toFixed(3)} kg`
-                : 'n/a'}
+                : t('general.na')}
             </strong>
           </div>
         </div>
@@ -68,32 +75,36 @@ const HistoryDetailPage = () => {
         <table className="estimate-table">
           <thead>
             <tr>
-              <th>Sr</th>
-              <th>Shape</th>
-              <th>Alloy</th>
-              <th>Pieces</th>
-              <th>Dimensions</th>
-              <th>Result (kg)</th>
+              <th>{t('table.sr')}</th>
+              <th>{t('table.shape')}</th>
+              <th>{t('table.alloy')}</th>
+              <th>{t('table.pieces')}</th>
+              <th>{t('table.dimensions')}</th>
+              <th>{t('table.resultKg')}</th>
             </tr>
           </thead>
           <tbody>
             {(estimate.items || []).map((item, index) => (
               <tr key={item.lineId || index}>
                 <td>{index + 1}</td>
-                <td>{item.shape?.label || 'n/a'}</td>
-                <td>{item.alloy?.label || 'n/a'}</td>
+                <td>
+                  {item.shape?.label
+                    ? translateShapeLabel(item.shape.label, t, i18n.language)
+                    : t('general.na')}
+                </td>
+                <td>{item.alloy?.label || t('general.na')}</td>
                 <td>
                   {item.mode === 'WEIGHT_TO_QTY'
                     ? `${item.pieces} kg`
                     : Number.isFinite(item.pieces)
                       ? item.pieces
-                      : 'n/a'}
+                      : t('general.na')}
                 </td>
-                <td>{item.dimensionsSummary}</td>
+                <td>{formatDimensionsSummary(item.dimensions, t, i18n.language)}</td>
                 <td>
                   {Number.isFinite(item.calculation?.weightKg)
                     ? item.calculation.weightKg.toFixed(3)
-                    : 'n/a'}
+                    : t('general.na')}
                 </td>
               </tr>
             ))}
@@ -103,10 +114,10 @@ const HistoryDetailPage = () => {
 
       <div className="history-actions">
         <Link to="/history" className="link-button">
-          Back to History
+          {t('historyDetail.backToHistory')}
         </Link>
         <button type="button" className="secondary" onClick={handleLoad}>
-          Load to Edit
+          {t('history.loadToEdit')}
         </button>
       </div>
     </main>

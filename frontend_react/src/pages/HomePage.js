@@ -1,8 +1,10 @@
 import { useNavigate } from 'react-router-dom';
 import { createNewEstimateSession } from '../utils/estimateStorage';
+import useGlossaryTranslation from '../i18n/useGlossaryTranslation';
 
 const HomePage = () => {
   const navigate = useNavigate();
+  const { t } = useGlossaryTranslation();
 
   const handleStartNew = () => {
     createNewEstimateSession();
@@ -13,24 +15,24 @@ const HomePage = () => {
     <main className="page page-home">
       <section className="hero-card">
         <div>
-          <p className="eyebrow">Saiguru Industries</p>
-          <h1>Quick estimates for metal stock in minutes.</h1>
+          <p className="eyebrow">{t('home.brand')}</p>
+          <h1>{t('home.headline')}</h1>
           <p className="hero-sub">
-            Start a new estimate, review saved history, or tweak preferences for your shop.
+            {t('home.subheadline')}
           </p>
         </div>
         <div className="home-actions">
           <button type="button" className="home-card primary" onClick={handleStartNew}>
-            <span>Start New Estimate</span>
-            <small>Fresh customer details and empty line items.</small>
+            <span>{t('home.startNewEstimate')}</span>
+            <small>{t('home.startNewEstimateDesc')}</small>
           </button>
           <button type="button" className="home-card" onClick={() => navigate('/history')}>
-            <span>History</span>
-            <small>Browse and reopen saved estimates.</small>
+            <span>{t('home.history')}</span>
+            <small>{t('home.historyDesc')}</small>
           </button>
           <button type="button" className="home-card" onClick={() => navigate('/settings')}>
-            <span>Settings</span>
-            <small>Update defaults and clear history.</small>
+            <span>{t('home.settings')}</span>
+            <small>{t('home.settingsDesc')}</small>
           </button>
         </div>
       </section>

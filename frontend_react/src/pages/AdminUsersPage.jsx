@@ -1,15 +1,17 @@
 import { useEffect, useState } from 'react';
 import { API_BASE_URL } from '../utils/apiConfig';
 import { authFetch } from '../utils/authFetch';
+import useGlossaryTranslation from '../i18n/useGlossaryTranslation';
 
 const DEFAULT_ROLE = 'USER';
 
 const AdminUsersPage = () => {
+  const { t } = useGlossaryTranslation();
   const [users, setUsers] = useState([]);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState(DEFAULT_ROLE);
-  const [error, setError] = useState('');
+  const [errorKey, setErrorKey] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const loadUsers = async () => {
@@ -26,7 +28,7 @@ const AdminUsersPage = () => {
 
   const handleCreate = async (event) => {
     event.preventDefault();
-    setError('');
+    setErrorKey('');
     setIsSubmitting(true);
     try {
       const response = await authFetch(`${API_BASE_URL}/api/admin/users`, {
@@ -34,7 +36,7 @@ const AdminUsersPage = () => {
         body: JSON.stringify({ username, password, role }),
       });
       if (!response.ok) {
-        setError('Unable to create user. Check password policy and try again.');
+        setErrorKey('admin.errorCreateUserPolicy');
         return;
       }
       setUsername('');
@@ -42,21 +44,21 @@ const AdminUsersPage = () => {
       setRole(DEFAULT_ROLE);
       await loadUsers();
     } catch (err) {
-      setError('Unable to create user.');
+      setErrorKey('admin.errorCreateUser');
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleResetPassword = async (userId) => {
-    const newPassword = window.prompt('Enter a new temporary password');
+    const newPassword = window.prompt(t('admin.promptTempPassword'));
     if (!newPassword) return;
     const response = await authFetch(`${API_BASE_URL}/api/admin/users/${userId}/reset-password`, {
       method: 'PUT',
       body: JSON.stringify({ newPassword }),
     });
     if (!response.ok) {
-      setError('Unable to reset password. Ensure policy: 8 chars, 1 uppercase, 1 number.');
+      setErrorKey('admin.errorResetPassword');
     }
   };
 
@@ -75,17 +77,17 @@ const AdminUsersPage = () => {
     <main className="page">
       <section className="admin-panel">
         <div className="admin-header">
-          <h1>User Management</h1>
-          <p>Create users, reset passwords, and manage access.</p>
+          <h1>{t('admin.title')}</h1>
+          <p>{t('admin.subtitle')}</p>
         </div>
 
         <form className="admin-form" onSubmit={handleCreate}>
           <label>
-            Username or email
+            {t('admin.usernameOrEmail')}
             <input value={username} onChange={(event) => setUsername(event.target.value)} required />
           </label>
           <label>
-            Temporary password
+            {t('admin.tempPassword')}
             <input
               type="password"
               value={password}
@@ -94,36 +96,36 @@ const AdminUsersPage = () => {
             />
           </label>
           <label>
-            Role
+            {t('admin.role')}
             <select value={role} onChange={(event) => setRole(event.target.value)}>
               <option value="USER">USER</option>
               <option value="ADMIN">ADMIN</option>
             </select>
           </label>
           <button type="submit" className="primary" disabled={isSubmitting}>
-            {isSubmitting ? 'Creating...' : 'Create user'}
+            {isSubmitting ? t('admin.creating') : t('admin.createUser')}
           </button>
-          {error ? <div className="error-box">{error}</div> : null}
+          {errorKey ? <div className="error-box">{t(errorKey)}</div> : null}
         </form>
 
         <div className="admin-table">
           <div className="admin-table-row admin-table-header">
-            <span>Username</span>
-            <span>Role</span>
-            <span>Status</span>
-            <span>Actions</span>
+            <span>{t('admin.username')}</span>
+            <span>{t('admin.role')}</span>
+            <span>{t('admin.status')}</span>
+            <span>{t('admin.actions')}</span>
           </div>
           {users.map((user) => (
             <div key={user.id} className="admin-table-row">
               <span>{user.username}</span>
               <span>{user.role}</span>
-              <span>{user.active ? 'Active' : 'Disabled'}</span>
+              <span>{user.active ? t('admin.active') : t('admin.disabled')}</span>
               <div className="admin-actions">
                 <button type="button" className="secondary" onClick={() => handleResetPassword(user.id)}>
-                  Reset password
+                  {t('admin.resetPassword')}
                 </button>
                 <button type="button" className="secondary" onClick={() => handleToggleStatus(user)}>
-                  {user.active ? 'Disable' : 'Enable'}
+                  {user.active ? t('admin.disable') : t('admin.enable')}
                 </button>
               </div>
             </div>

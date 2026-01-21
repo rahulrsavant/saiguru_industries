@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 import Calculator from '../components/Calculator';
 import ReceiptPreview from '../components/ReceiptPreview';
 import ViewEstimateItemModal from '../components/ViewEstimateItemModal';
+import useGlossaryTranslation from '../i18n/useGlossaryTranslation';
+import { formatDimensionsSummary, translateShapeLabel } from '../i18n/catalog';
 import {
   createNewEstimateSession,
   getSettings,
@@ -12,8 +14,8 @@ import {
 
 const buildEmptySession = () => loadCurrentEstimateSession() || createNewEstimateSession();
 
-const formatIndiaDateTime = (isoString) => {
-  if (!isoString) return 'n/a';
+const formatIndiaDateTime = (isoString, t) => {
+  if (!isoString) return t('general.na');
   const date = new Date(isoString);
   return new Intl.DateTimeFormat('en-GB', {
     timeZone: 'Asia/Kolkata',
@@ -52,6 +54,7 @@ const normalizeDimensions = (dimensions) => {
 };
 
 const EstimatePage = () => {
+  const { t, i18n } = useGlossaryTranslation();
   const [session, setSession] = useState(buildEmptySession);
   const [customerErrors, setCustomerErrors] = useState({});
   const [settings, setSettings] = useState(getSettings());
@@ -69,24 +72,24 @@ const EstimatePage = () => {
   const validateCustomer = () => {
     const errors = {};
     if (!session.customer.name.trim()) {
-      errors.name = 'Customer name is required.';
+      errors.name = 'validation.customerNameRequired';
     }
 
     const rawMobile = session.customer.mobile.trim();
     if (!rawMobile) {
-      errors.mobile = 'Mobile number is required.';
+      errors.mobile = 'validation.mobileRequired';
     } else {
       const cleaned = rawMobile.replace(/\s+/g, '');
       const normalized = cleaned.startsWith('+91') ? cleaned.slice(3) : cleaned;
       if (!/^\d{10}$/.test(normalized)) {
-        errors.mobile = 'Enter a valid 10-digit mobile number.';
+        errors.mobile = 'validation.mobileInvalid';
       }
     }
 
     if (session.customer.email.trim()) {
       const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(session.customer.email.trim());
       if (!emailOk) {
-        errors.email = 'Enter a valid email address.';
+        errors.email = 'validation.emailInvalid';
       }
     }
 
@@ -149,7 +152,7 @@ const EstimatePage = () => {
 
       if (existingIndex >= 0) {
         const shouldMerge = window.confirm(
-          'This item is already added. Do you want to add the quantity to the existing line?'
+          t('validation.mergeDuplicate')
         );
         if (!shouldMerge) {
           return prev;
@@ -226,6 +229,7 @@ const EstimatePage = () => {
   const totals = session.totals || calculateTotals(items);
   const isCustomerMissing = !session.customer.name.trim() || !session.customer.mobile.trim();
   const canPrint = items.length > 0;
+  const unitSystemLabel = settings.unitSystem === 'imperial' ? t('settings.imperial') : t('settings.metric');
   const handlePrint = () => {
     if (!canPrint) return;
     const originalTitle = document.title;
@@ -268,21 +272,23 @@ const EstimatePage = () => {
     <main className="page page-estimate">
       <section className="estimate-header">
         <div>
-          <p className="eyebrow">Estimate</p>
+          <p className="eyebrow">{t('estimate.eyebrow')}</p>
           <h1>{session.estimateNo}</h1>
-          <p className="subtext">Created {formatIndiaDateTime(session.createdAt)}</p>
+          <p className="subtext">
+            {t('estimate.created', { date: formatIndiaDateTime(session.createdAt, t) })}
+          </p>
         </div>
         <div className="estimate-meta">
           <div>
-            <span>Unit system</span>
-            <strong>{settings.unitSystem}</strong>
+            <span>{t('estimate.unitSystem')}</span>
+            <strong>{unitSystemLabel}</strong>
           </div>
           <div>
-            <span>Items</span>
+            <span>{t('estimate.items')}</span>
             <strong>{items.length}</strong>
           </div>
           <div>
-            <span>Total weight</span>
+            <span>{t('estimate.totalWeight')}</span>
             <strong>{totals.totalWeightKg.toFixed(3)} kg</strong>
           </div>
         </div>
@@ -290,21 +296,21 @@ const EstimatePage = () => {
 
       <section className="customer-section">
         <div className="section-title">
-          <h2>Customer details</h2>
-          <p>Required fields help keep estimates searchable.</p>
+          <h2>{t('estimate.customerDetailsTitle')}</h2>
+          <p>{t('estimate.customerDetailsSubtitle')}</p>
         </div>
         <div className="field-row">
           <label>
-            Customer Name
+            {t('estimate.customerName')}
             <input
               type="text"
               value={session.customer.name}
               onChange={(event) => updateCustomerField('name', event.target.value)}
             />
-            {customerErrors.name ? <span className="field-error">{customerErrors.name}</span> : null}
+            {customerErrors.name ? <span className="field-error">{t(customerErrors.name)}</span> : null}
           </label>
           <label>
-            Business Name
+            {t('estimate.businessName')}
             <input
               type="text"
               value={session.customer.businessName}
@@ -312,22 +318,22 @@ const EstimatePage = () => {
             />
           </label>
           <label>
-            Mobile No
+            {t('estimate.mobileNo')}
             <input
               type="tel"
               value={session.customer.mobile}
               onChange={(event) => updateCustomerField('mobile', event.target.value)}
             />
-            {customerErrors.mobile ? <span className="field-error">{customerErrors.mobile}</span> : null}
+            {customerErrors.mobile ? <span className="field-error">{t(customerErrors.mobile)}</span> : null}
           </label>
           <label>
-            Email
+            {t('estimate.email')}
             <input
               type="email"
               value={session.customer.email}
               onChange={(event) => updateCustomerField('email', event.target.value)}
             />
-            {customerErrors.email ? <span className="field-error">{customerErrors.email}</span> : null}
+            {customerErrors.email ? <span className="field-error">{t(customerErrors.email)}</span> : null}
           </label>
         </div>
       </section>
@@ -342,55 +348,59 @@ const EstimatePage = () => {
 
       <section className="estimate-items">
         <div className="section-title">
-          <h2>Estimate items</h2>
-          <p>Each item is saved to history when added.</p>
+          <h2>{t('estimate.itemsTitle')}</h2>
+          <p>{t('estimate.itemsSubtitle')}</p>
         </div>
         <div className="table-wrapper">
           <table className="estimate-table">
             <thead>
               <tr>
-                <th>Sr</th>
-                <th>Shape</th>
-                <th>Alloy</th>
-                <th>Pieces</th>
-                <th>Dimensions</th>
-                <th>Result (kg)</th>
-                <th>Actions</th>
+                <th>{t('table.sr')}</th>
+                <th>{t('table.shape')}</th>
+                <th>{t('table.alloy')}</th>
+                <th>{t('table.pieces')}</th>
+                <th>{t('table.dimensions')}</th>
+                <th>{t('table.resultKg')}</th>
+                <th>{t('table.actions')}</th>
               </tr>
             </thead>
             <tbody>
               {tableRows.length === 0 ? (
                 <tr>
                   <td colSpan="7" className="empty-cell">
-                    No items yet. Use Add to Estimate to capture the calculation.
+                    {t('estimate.noItems')}
                   </td>
                 </tr>
               ) : (
                 tableRows.map((item) => (
                   <tr key={item.lineId}>
                     <td>{item.rowIndex}</td>
-                    <td>{item.shape?.label || 'n/a'}</td>
-                    <td>{item.alloy?.label || 'n/a'}</td>
+                    <td>
+                      {item.shape?.label
+                        ? translateShapeLabel(item.shape.label, t, i18n.language)
+                        : t('general.na')}
+                    </td>
+                    <td>{item.alloy?.label || t('general.na')}</td>
                     <td>
                       {item.mode === 'WEIGHT_TO_QTY'
                         ? `${item.pieces} kg`
                         : Number.isFinite(item.pieces)
                           ? item.pieces
-                          : 'n/a'}
+                          : t('general.na')}
                     </td>
-                    <td>{item.dimensionsSummary}</td>
+                    <td>{formatDimensionsSummary(item.dimensions, t, i18n.language)}</td>
                     <td>
                       {Number.isFinite(item.calculation?.weightKg)
                         ? item.calculation.weightKg.toFixed(3)
-                        : 'n/a'}
+                        : t('general.na')}
                     </td>
                     <td>
                       <div className="action-buttons">
                         <button
                           type="button"
                           className="icon-button"
-                          title="View"
-                          aria-label="View"
+                          title={t('estimate.actionView')}
+                          aria-label={t('estimate.actionView')}
                           onClick={() => handleViewItem(item)}
                         >
                           👁
@@ -398,8 +408,8 @@ const EstimatePage = () => {
                         <button
                           type="button"
                           className="icon-button"
-                          title="Edit"
-                          aria-label="Edit"
+                          title={t('estimate.actionEdit')}
+                          aria-label={t('estimate.actionEdit')}
                           onClick={() => handleEditItem(item)}
                         >
                           ✏️
@@ -407,8 +417,8 @@ const EstimatePage = () => {
                         <button
                           type="button"
                           className="icon-button danger"
-                          title="Remove"
-                          aria-label="Remove"
+                          title={t('estimate.actionRemove')}
+                          aria-label={t('estimate.actionRemove')}
                           onClick={() => handleRemoveLineItem(item.lineId)}
                         >
                           🗑
@@ -422,7 +432,7 @@ const EstimatePage = () => {
             {tableRows.length ? (
               <tfoot>
                 <tr>
-                  <td colSpan="5">Totals</td>
+                  <td colSpan="5">{t('estimate.totals')}</td>
                   <td>{totals.totalWeightKg.toFixed(3)}</td>
                   <td />
                 </tr>
@@ -441,19 +451,19 @@ const EstimatePage = () => {
       <section className="receipt-section">
         <div className="receipt-title-row no-print">
           <div>
-            <h2>Receipt Preview</h2>
-            <p className="subtext">This is how your PDF will look when printed.</p>
+            <h2>{t('estimate.receiptPreviewTitle')}</h2>
+            <p className="subtext">{t('estimate.receiptPreviewSubtitle')}</p>
           </div>
           <div className="receipt-actions no-print">
             <button type="button" className="primary" onClick={handlePrint} disabled={!canPrint}>
-              Print Receipt (PDF)
+              {t('estimate.printReceipt')}
             </button>
             {!canPrint ? (
-              <span className="helper-text">Add items to estimate to print receipt.</span>
+              <span className="helper-text">{t('estimate.addItemsToPrint')}</span>
             ) : null}
             {isCustomerMissing ? (
               <span className="helper-text warn">
-                Customer name and mobile are recommended for printing.
+                {t('estimate.recommendCustomer')}
               </span>
             ) : null}
           </div>

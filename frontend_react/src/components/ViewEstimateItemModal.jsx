@@ -1,5 +1,8 @@
-const formatIndiaDateTime = (isoString) => {
-  if (!isoString) return 'n/a';
+import useGlossaryTranslation from '../i18n/useGlossaryTranslation';
+import { formatDimensionsSummary, translateDimensionKey, translateShapeLabel } from '../i18n/catalog';
+
+const formatIndiaDateTime = (isoString, t) => {
+  if (!isoString) return t('general.na');
   return new Intl.DateTimeFormat('en-GB', {
     timeZone: 'Asia/Kolkata',
     day: '2-digit',
@@ -14,6 +17,7 @@ const formatNumber = (value, digits = 3) =>
   Number.isFinite(value) ? value.toFixed(digits) : '0.000';
 
 const ViewEstimateItemModal = ({ item, onClose, onEdit }) => {
+  const { t, i18n } = useGlossaryTranslation();
   if (!item) return null;
 
   const dimensions = item.dimensions || {};
@@ -22,8 +26,8 @@ const ViewEstimateItemModal = ({ item, onClose, onEdit }) => {
     <div className="modal-overlay" role="dialog" aria-modal="true">
       <div className="modal-content">
         <div className="modal-header">
-          <h3>Item details</h3>
-          <button type="button" className="icon-button" onClick={onClose} title="Close">
+          <h3>{t('itemDetails.title')}</h3>
+          <button type="button" className="icon-button" onClick={onClose} title={t('itemDetails.closeTitle')}>
             ✕
           </button>
         </div>
@@ -31,49 +35,53 @@ const ViewEstimateItemModal = ({ item, onClose, onEdit }) => {
         <div className="modal-body">
           <div className="modal-grid">
             <div>
-              <span>Shape</span>
-              <strong>{item.shape?.label || 'n/a'}</strong>
+              <span>{t('itemDetails.shape')}</span>
+              <strong>
+                {item.shape?.label
+                  ? translateShapeLabel(item.shape.label, t, i18n.language)
+                  : t('general.na')}
+              </strong>
             </div>
             <div>
-              <span>Alloy</span>
-              <strong>{item.alloy?.label || 'n/a'}</strong>
+              <span>{t('itemDetails.alloy')}</span>
+              <strong>{item.alloy?.label || t('general.na')}</strong>
             </div>
             <div>
-              <span>Pieces</span>
+              <span>{t('itemDetails.pieces')}</span>
               <strong>
                 {item.mode === 'WEIGHT_TO_QTY'
                   ? `${item.pieces} kg`
                   : Number.isFinite(item.pieces)
                     ? item.pieces
-                    : 'n/a'}
+                    : t('general.na')}
               </strong>
             </div>
             <div>
-              <span>Density (g/cm3)</span>
-              <strong>{Number.isFinite(item.densityGcm3) ? item.densityGcm3 : 'n/a'}</strong>
+              <span>{t('itemDetails.density')}</span>
+              <strong>{Number.isFinite(item.densityGcm3) ? item.densityGcm3 : t('general.na')}</strong>
             </div>
             <div>
-              <span>Result (kg)</span>
+              <span>{t('itemDetails.resultKg')}</span>
               <strong>{formatNumber(item.calculation?.weightKg)}</strong>
             </div>
             <div>
-              <span>Created</span>
-              <strong>{formatIndiaDateTime(item.createdAt)}</strong>
+              <span>{t('itemDetails.created')}</span>
+              <strong>{formatIndiaDateTime(item.createdAt, t)}</strong>
             </div>
           </div>
 
           <div className="modal-dimensions">
-            <h4>Dimensions</h4>
-            {item.dimensionsSummary ? <p>{item.dimensionsSummary}</p> : null}
+            <h4>{t('itemDetails.dimensions')}</h4>
+            <p>{formatDimensionsSummary(item.dimensions, t, i18n.language)}</p>
             <div className="dimension-list">
               {Object.keys(dimensions).length === 0 ? (
-                <span>n/a</span>
+                <span>{t('general.na')}</span>
               ) : (
                 Object.entries(dimensions).map(([key, value]) => (
                   <div key={key}>
-                    <span>{key}</span>
+                    <span>{translateDimensionKey(key, t, i18n.language)}</span>
                     <strong>
-                      {value?.value ?? '—'} {value?.unit || ''}
+                      {value?.value ?? t('general.dash')} {value?.unit || ''}
                     </strong>
                   </div>
                 ))
@@ -84,11 +92,11 @@ const ViewEstimateItemModal = ({ item, onClose, onEdit }) => {
 
         <div className="modal-footer">
           <button type="button" className="secondary" onClick={onClose}>
-            Close
+            {t('itemDetails.close')}
           </button>
           {onEdit ? (
             <button type="button" className="primary" onClick={onEdit}>
-              Edit this item
+              {t('itemDetails.editItem')}
             </button>
           ) : null}
         </div>

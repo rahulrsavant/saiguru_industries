@@ -5,6 +5,13 @@ import { formatCurrency } from '../utils/formatCurrency';
 import { API_BASE_URL } from '../utils/apiConfig';
 import { authFetch } from '../utils/authFetch';
 import ShapeDiagramCard from './ShapeDiagramCard';
+import useGlossaryTranslation from '../i18n/useGlossaryTranslation';
+import {
+  formatDimensionsSummary,
+  translateFieldLabel,
+  translateMenuLabel,
+  translateSubtypeLabel,
+} from '../i18n/catalog';
 
 const MENU_ORDER = [
   'Pipe',
@@ -75,9 +82,9 @@ const buildDimensionState = (calculator) => {
   }, {});
 };
 
-const FieldInput = ({ field, value, unit, error, onValueChange, onUnitChange }) => (
-  <label className={`dimension-field ${error ? 'has-error' : ''}`}>
-    {field.label}
+const FieldInput = ({ field, label, value, unit, errorText, onValueChange, onUnitChange }) => (
+  <label className={`dimension-field ${errorText ? 'has-error' : ''}`}>
+    {label}
     <div className="input-unit">
       <input
         type="text"
@@ -93,21 +100,14 @@ const FieldInput = ({ field, value, unit, error, onValueChange, onUnitChange }) 
         ))}
       </select>
     </div>
-    {error ? <span className="field-error">{error}</span> : null}
+    {errorText ? <span className="field-error">{errorText}</span> : null}
   </label>
 );
 
-const buildDimensionsSummary = (calculator, dimensions) => {
-  if (!calculator?.fields) return 'n/a';
-  const summary = calculator.fields
-    .map((field) => {
-      const entry = dimensions[field.key];
-      if (!entry || entry.value === '') return null;
-      return `${field.label}: ${entry.value} ${entry.unit}`;
-    })
-    .filter(Boolean)
-    .join(', ');
-  return summary || 'n/a';
+const buildDimensionsSummary = (calculator, dimensions, t, lang) => {
+  if (!calculator?.fields) return t('general.na');
+  const orderKeys = calculator.fields.map((field) => field.key);
+  return formatDimensionsSummary(dimensions, t, lang, t('general.na'), orderKeys);
 };
 
 const buildDimensionsPayload = (calculator, dimensions) => {
@@ -123,10 +123,11 @@ const buildDimensionsPayload = (calculator, dimensions) => {
 };
 
 const Calculator = ({ estimateNo, settings, onAddLineItem, validateCustomer, prefillItem }) => {
+  const { t, i18n } = useGlossaryTranslation();
   const [catalog, setCatalog] = useState(null);
-  const [catalogError, setCatalogError] = useState('');
+  const [catalogErrorKey, setCatalogErrorKey] = useState('');
   const [densityCatalog, setDensityCatalog] = useState(null);
-  const [densityError, setDensityError] = useState('');
+  const [densityErrorKey, setDensityErrorKey] = useState('');
   const [metal, setMetal] = useState('');
   const [alloy, setAlloy] = useState('');
   const [activeCalculatorId, setActiveCalculatorId] = useState('');
@@ -139,7 +140,8 @@ const Calculator = ({ estimateNo, settings, onAddLineItem, validateCustomer, pre
   const [pricePerTon, setPricePerTon] = useState('');
   const [fieldErrors, setFieldErrors] = useState({});
   const [result, setResult] = useState(null);
-  const [error, setError] = useState('');
+  const [errorKey, setErrorKey] = useState('');
+  const [errorValues, setErrorValues] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [debugEnabled, setDebugEnabled] = useState(false);
 
@@ -148,12 +150,13 @@ const Calculator = ({ estimateNo, settings, onAddLineItem, validateCustomer, pre
       try {
         const response = await authFetch(`${API_BASE_URL}/api/catalog`);
         if (!response.ok) {
-          throw new Error('Unable to load catalog.');
+          throw new Error('catalog');
         }
         const data = await response.json();
         setCatalog(data);
+        setCatalogErrorKey('');
       } catch (fetchError) {
-        setCatalogError(fetchError.message || 'Unable to load catalog.');
+        setCatalogErrorKey('calculator.errorCatalog');
       }
     };
 
@@ -161,17 +164,18 @@ const Calculator = ({ estimateNo, settings, onAddLineItem, validateCustomer, pre
       try {
         const response = await authFetch(`${API_BASE_URL}/api/density-catalog`);
         if (!response.ok) {
-          throw new Error('Unable to load density catalog.');
+          throw new Error('density');
         }
         const data = await response.json();
         setDensityCatalog(data);
+        setDensityErrorKey('');
         const defaultMetal = data?.metals?.[0];
         if (defaultMetal) {
           setMetal(defaultMetal.id);
           setAlloy(defaultMetal.alloys?.[0]?.id || '');
         }
       } catch (fetchError) {
-        setDensityError(fetchError.message || 'Unable to load density catalog.');
+        setDensityErrorKey('calculator.errorDensity');
       }
     };
 
@@ -218,7 +222,8 @@ const Calculator = ({ estimateNo, settings, onAddLineItem, validateCustomer, pre
     });
     setDimensions(filledDimensions);
     setResult(null);
-    setError('');
+    setErrorKey('');
+    setErrorValues(null);
   }, [prefillItem, catalog, densityCatalog]);
 
   const menuItems = useMemo(() => {
@@ -287,7 +292,8 @@ const Calculator = ({ estimateNo, settings, onAddLineItem, validateCustomer, pre
     setDimensions(buildDimensionState(activeCalculator));
     setFieldErrors({});
     setResult(null);
-    setError('');
+    setErrorKey('');
+    setErrorValues(null);
     if (activeCalculator?.category !== 'FASTENERS') {
       setMode('QTY_TO_WEIGHT');
     }
@@ -317,72 +323,76 @@ const Calculator = ({ estimateNo, settings, onAddLineItem, validateCustomer, pre
     setMetal(nextMetalId);
     const nextMetal = metals.find((entry) => entry.id === nextMetalId);
     setAlloy(nextMetal?.alloys?.[0]?.id || '');
-    setError('');
+    setErrorKey('');
+    setErrorValues(null);
   };
 
   const handleAlloyChange = (nextAlloyId) => {
     setAlloy(nextAlloyId);
-    setError('');
+    setErrorKey('');
+    setErrorValues(null);
   };
 
   const validateForm = () => {
     if (!activeCalculator) {
-      return { message: 'Select a calculator.', fieldErrors: {} };
+      return { messageKey: 'validation.selectCalculator', fieldErrors: {} };
     }
 
     const nextFieldErrors = {};
     if (!metal || !alloy) {
-      return { message: 'Select a metal and alloy.', fieldErrors: nextFieldErrors };
+      return { messageKey: 'validation.selectMetalAlloy', fieldErrors: nextFieldErrors };
     }
     if (!Number.isFinite(densityGcm3) || densityGcm3 <= 0) {
-      return { message: 'Select a metal and alloy with a valid density.', fieldErrors: nextFieldErrors };
+      return { messageKey: 'validation.selectMetalAlloyDensity', fieldErrors: nextFieldErrors };
     }
 
     activeCalculator.fields.forEach((field) => {
       const entry = dimensions[field.key];
       if (!entry || entry.value === '') {
         if (field.required) {
-          nextFieldErrors[field.key] = `${field.label} is required.`;
+          nextFieldErrors[field.key] = { type: 'required', label: field.label };
         }
         return;
       }
       const numericValue = parseNumber(entry.value);
       if (!Number.isFinite(numericValue) || numericValue <= 0) {
-        nextFieldErrors[field.key] = `${field.label} must be a positive number.`;
+        nextFieldErrors[field.key] = { type: 'positive', label: field.label };
         return;
       }
       if (field.minValue && numericValue < field.minValue) {
-        nextFieldErrors[field.key] = `${field.label} must be at least ${field.minValue}.`;
+        nextFieldErrors[field.key] = { type: 'min', label: field.label, min: field.minValue };
       }
     });
 
     const qtyValue = parseNumber(piecesOrQty);
     if (!Number.isFinite(qtyValue) || qtyValue <= 0) {
-      return { message: 'Quantity or weight must be greater than zero.', fieldErrors: nextFieldErrors };
+      return { messageKey: 'validation.quantityGreaterThanZero', fieldErrors: nextFieldErrors };
     }
 
     if (mode === 'QTY_TO_WEIGHT' && !Number.isInteger(qtyValue)) {
-      return { message: 'Quantity must be a positive integer.', fieldErrors: nextFieldErrors };
+      return { messageKey: 'validation.quantityInteger', fieldErrors: nextFieldErrors };
     }
 
     if (Object.keys(nextFieldErrors).length > 0) {
-      return { message: 'Fix the highlighted fields.', fieldErrors: nextFieldErrors };
+      return { messageKey: 'validation.fixHighlighted', fieldErrors: nextFieldErrors };
     }
 
-    return { message: '', fieldErrors: {} };
+    return { messageKey: '', fieldErrors: {} };
   };
 
   const performCalculation = async () => {
     const validation = validateForm();
     setFieldErrors(validation.fieldErrors);
-    if (validation.message) {
-      setError(validation.message);
+    if (validation.messageKey) {
+      setErrorKey(validation.messageKey);
+      setErrorValues(null);
       setResult(null);
       return null;
     }
 
     setIsSubmitting(true);
-    setError('');
+    setErrorKey('');
+    setErrorValues(null);
 
     try {
       const payload = {
@@ -407,7 +417,7 @@ const Calculator = ({ estimateNo, settings, onAddLineItem, validateCustomer, pre
 
       if (!response.ok) {
         const errorPayload = await response.json().catch(() => null);
-        throw new Error(errorPayload?.message || 'Calculation failed.');
+        throw new Error(errorPayload?.message || 'calculation');
       }
 
       const data = await response.json();
@@ -415,7 +425,12 @@ const Calculator = ({ estimateNo, settings, onAddLineItem, validateCustomer, pre
       return data;
     } catch (fetchError) {
       setResult(null);
-      setError(fetchError.message || 'Unable to calculate weight.');
+      if (fetchError.message === 'calculation') {
+        setErrorKey('calculator.errorCalculationFailed');
+      } else {
+        setErrorKey('calculator.errorUnableToCalculate');
+      }
+      setErrorValues(null);
       return null;
     } finally {
       setIsSubmitting(false);
@@ -437,7 +452,8 @@ const Calculator = ({ estimateNo, settings, onAddLineItem, validateCustomer, pre
     setPricePerTon('');
     setFieldErrors({});
     setResult(null);
-    setError('');
+    setErrorKey('');
+    setErrorValues(null);
   };
 
   useEffect(() => {
@@ -446,8 +462,9 @@ const Calculator = ({ estimateNo, settings, onAddLineItem, validateCustomer, pre
     if (!hasInput) return;
     const validation = validateForm();
     setFieldErrors(validation.fieldErrors);
-    if (validation.message) {
-      setError(validation.message);
+    if (validation.messageKey) {
+      setErrorKey(validation.messageKey);
+      setErrorValues(null);
       setResult(null);
       return;
     }
@@ -474,6 +491,16 @@ const Calculator = ({ estimateNo, settings, onAddLineItem, validateCustomer, pre
     if (!isSheet) return activeCalculator.fields;
     return activeCalculator.fields.filter((field) => field.key !== 'length');
   }, [activeCalculator, isSheet]);
+
+  const activeCalculatorLabel = useMemo(() => {
+    if (!activeCalculator) return '';
+    const menuLabel = translateMenuLabel(activeCalculator.menuLabel, t, i18n.language);
+    if (activeCalculator.subtypeLabel) {
+      const subtypeLabel = translateSubtypeLabel(activeCalculator.subtypeLabel, t, i18n.language);
+      return `${menuLabel} - ${subtypeLabel}`;
+    }
+    return menuLabel;
+  }, [activeCalculator, i18n.language, t]);
 
   const sheetMetrics = useMemo(() => {
     if (!isSheet) return null;
@@ -515,13 +542,34 @@ const Calculator = ({ estimateNo, settings, onAddLineItem, validateCustomer, pre
     };
   }, [densityGcm3, dimensions, isSheet, pricePerMeter, pricePerTon, sheetTotalWeightKg]);
 
-  const formatMetric = (value, digits = 3) => (Number.isFinite(value) ? value.toFixed(digits) : 'n/a');
+  const formatMetric = (value, digits = 3) =>
+    Number.isFinite(value) ? value.toFixed(digits) : t('general.na');
+
+  const getFieldErrorText = (fieldError) => {
+    if (!fieldError) return '';
+    const fieldLabel = translateFieldLabel(fieldError.label, t, i18n.language);
+    if (fieldError.type === 'required') {
+      return t('validation.fieldRequired', { field: fieldLabel });
+    }
+    if (fieldError.type === 'positive') {
+      return t('validation.fieldPositive', { field: fieldLabel });
+    }
+    if (fieldError.type === 'min') {
+      return t('validation.fieldMin', { field: fieldLabel, min: fieldError.min });
+    }
+    return '';
+  };
+
+  const catalogError = catalogErrorKey ? t(catalogErrorKey) : '';
+  const densityError = densityErrorKey ? t(densityErrorKey) : '';
+  const errorText = errorKey ? t(errorKey, errorValues || {}) : '';
 
   const handleAddToEstimate = async () => {
     if (isSubmitting) return;
     const customerOk = validateCustomer ? validateCustomer() : true;
     if (!customerOk) {
-      setError('Customer details are required before adding items.');
+      setErrorKey('validation.customerRequiredForItems');
+      setErrorValues(null);
       return;
     }
     const calculation = await performCalculation();
@@ -548,7 +596,7 @@ const Calculator = ({ estimateNo, settings, onAddLineItem, validateCustomer, pre
       mode,
       unitSystem: settings?.unitSystem || 'metric',
       dimensions: buildDimensionsPayload(activeCalculator, dimensions),
-      dimensionsSummary: buildDimensionsSummary(activeCalculator, dimensions),
+      dimensionsSummary: buildDimensionsSummary(activeCalculator, dimensions, t, i18n.language),
       calculation: {
         weightKg: calculation.weightKg ?? null,
         quantity: calculation.quantity ?? null,
@@ -576,13 +624,13 @@ const Calculator = ({ estimateNo, settings, onAddLineItem, validateCustomer, pre
     <section className="calculator" id="calculator">
       <section className="calculator-card">
         <div className="calculator-header">
-          <h1>Metal Weight Calculator</h1>
-          <p>Calculate weight using catalog-driven calculators with precise unit conversions.</p>
+          <h1>{t('calculator.title')}</h1>
+          <p>{t('calculator.subtitle')}</p>
         </div>
 
         <div className="calculator-grid catalog-layout">
           <aside className="menu-panel">
-            <div className="menu-title">Catalog</div>
+            <div className="menu-title">{t('calculator.catalog')}</div>
             {menuItems.map((menu) => (
               <div key={menu.menuLabel} className="menu-group">
                 <button
@@ -590,7 +638,7 @@ const Calculator = ({ estimateNo, settings, onAddLineItem, validateCustomer, pre
                   className={`menu-item ${activeMenuLabel === menu.menuLabel ? 'active' : ''}`}
                   onClick={() => handleMenuSelect(menu.menuLabel)}
                 >
-                  {menu.menuLabel}
+                  {translateMenuLabel(menu.menuLabel, t, i18n.language)}
                 </button>
                 {activeMenuLabel === menu.menuLabel && menu.calculators.length > 1 ? (
                   <div className="submenu">
@@ -601,7 +649,9 @@ const Calculator = ({ estimateNo, settings, onAddLineItem, validateCustomer, pre
                         className={`submenu-item ${activeCalculatorId === calculator.id ? 'active' : ''}`}
                         onClick={() => setActiveCalculatorId(calculator.id)}
                       >
-                        {calculator.subtypeLabel || calculator.menuLabel}
+                        {calculator.subtypeLabel
+                          ? translateSubtypeLabel(calculator.subtypeLabel, t, i18n.language)
+                          : translateMenuLabel(calculator.menuLabel, t, i18n.language)}
                       </button>
                     ))}
                   </div>
@@ -613,7 +663,7 @@ const Calculator = ({ estimateNo, settings, onAddLineItem, validateCustomer, pre
           <div className="form-section">
             <div className="field-row">
               <label>
-                Metal
+                {t('calculator.metal')}
                 <select value={metal} onChange={(event) => handleMetalChange(event.target.value)}>
                   {metals.map((entry) => (
                     <option key={entry.id} value={entry.id}>
@@ -623,7 +673,7 @@ const Calculator = ({ estimateNo, settings, onAddLineItem, validateCustomer, pre
                 </select>
               </label>
               <label>
-                Alloy
+                {t('calculator.alloy')}
                 <select value={alloy} onChange={(event) => handleAlloyChange(event.target.value)}>
                   {alloys.map((entry) => (
                     <option key={entry.id} value={entry.id}>
@@ -633,11 +683,11 @@ const Calculator = ({ estimateNo, settings, onAddLineItem, validateCustomer, pre
                 </select>
               </label>
               <label>
-                Density (g/cm3)
+                {t('calculator.density')}
                 <input type="text" value={densityGcm3 ?? ''} readOnly />
               </label>
               <label>
-                Calculator
+                {t('calculator.calculator')}
                 <select
                   value={activeCalculatorId}
                   onChange={(event) => {
@@ -651,7 +701,10 @@ const Calculator = ({ estimateNo, settings, onAddLineItem, validateCustomer, pre
                 >
                   {catalog?.calculators?.map((calculator) => (
                     <option key={calculator.id} value={calculator.id}>
-                      {calculator.menuLabel} {calculator.subtypeLabel ? `- ${calculator.subtypeLabel}` : ''}
+                      {translateMenuLabel(calculator.menuLabel, t, i18n.language)}{' '}
+                      {calculator.subtypeLabel
+                        ? `- ${translateSubtypeLabel(calculator.subtypeLabel, t, i18n.language)}`
+                        : ''}
                     </option>
                   ))}
                 </select>
@@ -660,7 +713,7 @@ const Calculator = ({ estimateNo, settings, onAddLineItem, validateCustomer, pre
 
             {isFasteners ? (
               <div className="mode-toggle">
-                <span>Mode</span>
+                <span>{t('calculator.mode')}</span>
                 <label>
                   <input
                     type="radio"
@@ -669,7 +722,7 @@ const Calculator = ({ estimateNo, settings, onAddLineItem, validateCustomer, pre
                     checked={mode === 'QTY_TO_WEIGHT'}
                     onChange={() => setMode('QTY_TO_WEIGHT')}
                   />
-                  Quantity to Weight
+                  {t('calculator.qtyToWeight')}
                 </label>
                 <label>
                   <input
@@ -679,14 +732,14 @@ const Calculator = ({ estimateNo, settings, onAddLineItem, validateCustomer, pre
                     checked={mode === 'WEIGHT_TO_QTY'}
                     onChange={() => setMode('WEIGHT_TO_QTY')}
                   />
-                  Weight to Quantity
+                  {t('calculator.weightToQty')}
                 </label>
               </div>
             ) : null}
 
             <div className="field-row">
               <label>
-                {isWeightToQty ? 'Total Weight (kg)' : 'Quantity'}
+                {isWeightToQty ? t('calculator.totalWeightKg') : t('calculator.quantity')}
                 <input
                   type="number"
                   min="0"
@@ -698,14 +751,15 @@ const Calculator = ({ estimateNo, settings, onAddLineItem, validateCustomer, pre
             </div>
 
             <div className="dimension-section">
-              <div className="dimension-title">Dimensions</div>
+              <div className="dimension-title">{t('calculator.dimensions')}</div>
               {visibleFields.map((field) => (
                 <FieldInput
                   key={field.key}
                   field={field}
+                  label={translateFieldLabel(field.label, t, i18n.language)}
                   value={dimensions[field.key]?.value ?? ''}
                   unit={dimensions[field.key]?.unit ?? field.defaultUnit}
-                  error={fieldErrors[field.key]}
+                  errorText={getFieldErrorText(fieldErrors[field.key])}
                   onValueChange={(value) => updateDimensionValue(field.key, value)}
                   onUnitChange={(unit) => updateDimensionUnit(field.key, unit)}
                 />
@@ -714,10 +768,10 @@ const Calculator = ({ estimateNo, settings, onAddLineItem, validateCustomer, pre
 
             {isSheet ? (
               <div className="sheet-pricing">
-                <div className="dimension-title">Pricing</div>
+                <div className="dimension-title">{t('calculator.pricing')}</div>
                 <div className="field-row">
                   <label>
-                    Length (m)
+                    {t('calculator.lengthM')}
                     <div className="input-unit">
                       <input
                         type="text"
@@ -729,7 +783,7 @@ const Calculator = ({ estimateNo, settings, onAddLineItem, validateCustomer, pre
                     </div>
                   </label>
                   <label>
-                    Total weight (kg)
+                    {t('calculator.totalWeightLabel')}
                     <input
                       type="text"
                       inputMode="decimal"
@@ -740,7 +794,7 @@ const Calculator = ({ estimateNo, settings, onAddLineItem, validateCustomer, pre
                 </div>
                 <div className="field-row">
                   <label>
-                    Price per 1 meter ({currencyCode})
+                    {t('calculator.pricePerMeter', { currency: currencyCode })}
                     <input
                       type="text"
                       inputMode="decimal"
@@ -749,7 +803,7 @@ const Calculator = ({ estimateNo, settings, onAddLineItem, validateCustomer, pre
                     />
                   </label>
                   <label>
-                    Price per ton ({currencyCode})
+                    {t('calculator.pricePerTon', { currency: currencyCode })}
                     <input
                       type="text"
                       inputMode="decimal"
@@ -761,7 +815,7 @@ const Calculator = ({ estimateNo, settings, onAddLineItem, validateCustomer, pre
               </div>
             ) : null}
 
-            {error ? <div className="error-box">{error}</div> : null}
+            {errorText ? <div className="error-box">{errorText}</div> : null}
 
             <label className="debug-toggle">
               <input
@@ -769,15 +823,15 @@ const Calculator = ({ estimateNo, settings, onAddLineItem, validateCustomer, pre
                 checked={debugEnabled}
                 onChange={(event) => setDebugEnabled(event.target.checked)}
               />
-              Enable debug output
+              {t('calculator.enableDebug')}
             </label>
 
             <div className="action-row">
               <button type="button" className="primary" onClick={handleCalculate} disabled={isSubmitting}>
-                {isSubmitting ? 'Calculating...' : 'Calculate'}
+                {isSubmitting ? t('calculator.calculating') : t('calculator.calculate')}
               </button>
               <button type="button" className="secondary" onClick={handleReset}>
-                Reset
+                {t('calculator.reset')}
               </button>
               <button
                 type="button"
@@ -785,7 +839,7 @@ const Calculator = ({ estimateNo, settings, onAddLineItem, validateCustomer, pre
                 onClick={handleAddToEstimate}
                 disabled={isSubmitting}
               >
-                Add to Estimate
+                {t('calculator.addToEstimate')}
               </button>
             </div>
           </div>
@@ -793,28 +847,32 @@ const Calculator = ({ estimateNo, settings, onAddLineItem, validateCustomer, pre
           <div className="result-section">
             <ShapeDiagramCard shapeKey={shapeDiagramKey} />
             <div className="result-card">
-              <div className="result-label">{isWeightToQty ? 'Estimated Quantity' : 'Calculated Weight'}</div>
+              <div className="result-label">
+                {isWeightToQty ? t('calculator.estimatedQuantity') : t('calculator.calculatedWeight')}
+              </div>
               <div className="result-value">
                 {isWeightToQty
                   ? `${result?.quantity ? result.quantity.toFixed(4) : '0.0000'} pcs`
                   : `${result?.weightKg ? result.weightKg.toFixed(4) : '0.0000'} kg`}
               </div>
               <div className="result-meta">
-                {activeCalculator ? `Calculator: ${activeCalculator.menuLabel}` : 'Select a calculator'}
+                {activeCalculator
+                  ? t('calculator.resultCalculator', { label: activeCalculatorLabel })
+                  : t('calculator.selectCalculator')}
               </div>
             </div>
 
             <div className="result-details">
               <div>
-                <span>Volume</span>
+                <span>{t('calculator.volume')}</span>
                 <strong>{result?.volumeM3 ? result.volumeM3.toFixed(4) : '0.0000'} m3</strong>
               </div>
               <div>
-                <span>Unit weight</span>
+                <span>{t('calculator.unitWeight')}</span>
                 <strong>{result?.unitWeightKg ? result.unitWeightKg.toFixed(4) : '0.0000'} kg</strong>
               </div>
               <div>
-                <span>{isWeightToQty ? 'Input Weight' : 'Quantity'}</span>
+                <span>{isWeightToQty ? t('calculator.inputWeight') : t('calculator.quantity')}</span>
                 <strong>{piecesOrQty || DEFAULT_QUANTITY}</strong>
               </div>
             </div>
@@ -822,59 +880,67 @@ const Calculator = ({ estimateNo, settings, onAddLineItem, validateCustomer, pre
             {isSheet ? (
               <div className="sheet-metrics">
                 <div>
-                  <span>Weight of 1 meter</span>
+                  <span>{t('calculator.weightOfOneMeter')}</span>
                   <strong>{`${formatMetric(sheetMetrics?.weightPerMeter, 3)} kg`}</strong>
                 </div>
                 <div>
-                  <span>{`Cost of a ton at a price of ${formatCurrency(pricePerMeter)} per meter`}</span>
+                  <span>
+                    {t('calculator.costOfTonAtPricePerMeter', { price: formatCurrency(pricePerMeter) })}
+                  </span>
                   <strong>{formatCurrency(sheetMetrics?.costPerTonFromPricePerMeter)}</strong>
                 </div>
                 <div>
-                  <span>{`Price per meter of sheet at the cost of a ton ${formatCurrency(pricePerTon)}`}</span>
+                  <span>
+                    {t('calculator.pricePerMeterFromTon', { price: formatCurrency(pricePerTon) })}
+                  </span>
                   <strong>{formatCurrency(sheetMetrics?.pricePerMeterFromTonPrice)}</strong>
                 </div>
                 <div>
-                  <span>{`Total weight of ${dimensions.length?.value || '__'} meters of sheet, kg`}</span>
+                  <span>
+                    {t('calculator.totalWeightOfLength', { length: dimensions.length?.value || '__' })}
+                  </span>
                   <strong>{formatMetric(sheetMetrics?.totalWeightForLength, 3)}</strong>
                 </div>
                 <div>
-                  <span>{`Total length of ${sheetTotalWeightKg || '__'} kilograms of sheet, m`}</span>
+                  <span>
+                    {t('calculator.totalLengthOfWeight', { weight: sheetTotalWeightKg || '__' })}
+                  </span>
                   <strong>{formatMetric(sheetMetrics?.totalLengthForWeight, 2)}</strong>
                 </div>
               </div>
             ) : null}
 
             <div className="result-note">
-              Units are normalized to centimeters internally. Final values are rounded for display.
+              {t('calculator.resultNote')}
             </div>
 
             {debugEnabled && result ? (
               <div className="debug-section">
-                <div className="debug-title">Debug details</div>
+                <div className="debug-title">{t('calculator.debugDetails')}</div>
                 <div className="debug-grid">
                   <div>
-                    <span>Density (g/cm3)</span>
-                    <strong>{result.densityGPerCm3 ?? 'N/A'}</strong>
+                    <span>{t('calculator.densityGcm3')}</span>
+                    <strong>{result.densityGPerCm3 ?? t('general.na')}</strong>
                   </div>
                   <div>
-                    <span>Unit Weight (kg)</span>
-                    <strong>{result.unitWeightKg ?? 'N/A'}</strong>
+                    <span>{t('calculator.unitWeightKg')}</span>
+                    <strong>{result.unitWeightKg ?? t('general.na')}</strong>
                   </div>
                   <div>
-                    <span>Raw Volume (m3)</span>
-                    <strong>{result.volumeM3Raw ?? 'N/A'}</strong>
+                    <span>{t('calculator.rawVolumeM3')}</span>
+                    <strong>{result.volumeM3Raw ?? t('general.na')}</strong>
                   </div>
                   <div>
-                    <span>Raw Weight (kg)</span>
-                    <strong>{result.weightKgRaw ?? 'N/A'}</strong>
+                    <span>{t('calculator.rawWeightKg')}</span>
+                    <strong>{result.weightKgRaw ?? t('general.na')}</strong>
                   </div>
                   <div>
-                    <span>Raw Quantity</span>
+                    <span>{t('calculator.rawQuantity')}</span>
                     <strong>{result.quantityRaw ?? piecesOrQty}</strong>
                   </div>
                 </div>
                 <div className="debug-dims">
-                  <div className="debug-title">Normalized Dimensions (mm)</div>
+                  <div className="debug-title">{t('calculator.normalizedDimensions')}</div>
                   {result.normalizedDimensionsMm ? (
                     <ul>
                       {Object.entries(result.normalizedDimensionsMm).map(([key, value]) => (
@@ -882,7 +948,7 @@ const Calculator = ({ estimateNo, settings, onAddLineItem, validateCustomer, pre
                       ))}
                     </ul>
                   ) : (
-                    <div className="debug-empty">No normalized dimensions returned.</div>
+                    <div className="debug-empty">{t('calculator.noNormalizedDimensions')}</div>
                   )}
                 </div>
               </div>

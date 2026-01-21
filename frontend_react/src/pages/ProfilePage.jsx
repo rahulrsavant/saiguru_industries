@@ -3,21 +3,23 @@ import { useNavigate } from 'react-router-dom';
 import { API_BASE_URL } from '../utils/apiConfig';
 import { authFetch } from '../utils/authFetch';
 import { useAuth } from '../context/AuthContext';
+import useGlossaryTranslation from '../i18n/useGlossaryTranslation';
 
 const ProfilePage = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { t } = useGlossaryTranslation();
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [errorKey, setErrorKey] = useState('');
+  const [successKey, setSuccessKey] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setError('');
-    setSuccess('');
+    setErrorKey('');
+    setSuccessKey('');
     setIsSubmitting(true);
     try {
       const response = await authFetch(`${API_BASE_URL}/api/auth/change-password`, {
@@ -25,14 +27,14 @@ const ProfilePage = () => {
         body: JSON.stringify({ oldPassword, newPassword, confirmPassword }),
       });
       if (!response.ok) {
-        setError('Unable to change password. Verify your current password and policy.');
+        setErrorKey('profile.errorChangePassword');
         return;
       }
-      setSuccess('Password updated. Please sign in again.');
+      setSuccessKey('profile.successPasswordUpdated');
       logout();
       navigate('/login', { replace: true });
     } catch (err) {
-      setError('Unable to change password.');
+      setErrorKey('profile.errorChangePasswordGeneric');
     } finally {
       setIsSubmitting(false);
     }
@@ -41,11 +43,11 @@ const ProfilePage = () => {
   return (
     <main className="page">
       <section className="profile-card">
-        <h1>Profile</h1>
-        <p>Signed in as {user?.username}</p>
+        <h1>{t('profile.title')}</h1>
+        <p>{t('profile.signedInAs', { user: user?.username || '' })}</p>
         <form className="auth-form" onSubmit={handleSubmit}>
           <label>
-            Current password
+            {t('profile.currentPassword')}
             <input
               type="password"
               value={oldPassword}
@@ -55,7 +57,7 @@ const ProfilePage = () => {
             />
           </label>
           <label>
-            New password
+            {t('profile.newPassword')}
             <input
               type="password"
               value={newPassword}
@@ -65,7 +67,7 @@ const ProfilePage = () => {
             />
           </label>
           <label>
-            Confirm new password
+            {t('profile.confirmNewPassword')}
             <input
               type="password"
               value={confirmPassword}
@@ -74,10 +76,10 @@ const ProfilePage = () => {
               required
             />
           </label>
-          {error ? <div className="error-box">{error}</div> : null}
-          {success ? <div className="success-box">{success}</div> : null}
+          {errorKey ? <div className="error-box">{t(errorKey)}</div> : null}
+          {successKey ? <div className="success-box">{t(successKey)}</div> : null}
           <button type="submit" className="primary" disabled={isSubmitting}>
-            {isSubmitting ? 'Updating...' : 'Change password'}
+            {isSubmitting ? t('profile.updating') : t('profile.changePassword')}
           </button>
         </form>
       </section>

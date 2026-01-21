@@ -68,3 +68,9 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 ### `npm run build` fails to minify
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+
+## Internationalization (i18n)
+
+- Add new UI text by wrapping it with `t('...')` from `useGlossaryTranslation`, then add the key to `src/i18n/locales/en/translation.json` and translate it in `src/i18n/locales/hi/translation.json` and `src/i18n/locales/mr/translation.json`.
+- Keep glossary terms (like `Pipe`, `Bolt`, `Sheet`) in English inside the Hindi/Marathi translations so the glossary helper can transliterate them consistently at runtime.
+- Add new glossary terms to `src/i18n/glossary.js` and validate via `npm test -- glossary.test.js`.

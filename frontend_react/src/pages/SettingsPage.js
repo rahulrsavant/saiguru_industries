@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { clearEstimateHistory, getSettings, saveSettings } from '../utils/estimateStorage';
+import useGlossaryTranslation from '../i18n/useGlossaryTranslation';
 
 const SettingsPage = () => {
+  const { t } = useGlossaryTranslation();
   const [settings, setSettings] = useState(getSettings());
-  const [status, setStatus] = useState('');
+  const [statusKey, setStatusKey] = useState('');
 
   const handleChange = (key, value) => {
     setSettings((prev) => ({
@@ -14,29 +16,29 @@ const SettingsPage = () => {
 
   const handleSave = () => {
     saveSettings(settings);
-    setStatus('Settings saved.');
-    setTimeout(() => setStatus(''), 2000);
+    setStatusKey('settings.saved');
+    setTimeout(() => setStatusKey(''), 2000);
   };
 
   const handleClearHistory = () => {
-    const confirmed = window.confirm('Clear all estimate history? This cannot be undone.');
+    const confirmed = window.confirm(t('settings.confirmClear'));
     if (!confirmed) return;
     clearEstimateHistory();
-    setStatus('History cleared.');
-    setTimeout(() => setStatus(''), 2000);
+    setStatusKey('settings.cleared');
+    setTimeout(() => setStatusKey(''), 2000);
   };
 
   return (
     <main className="page page-settings">
       <section className="section-title">
-        <h1>Settings</h1>
-        <p>Preferences are stored locally for this device.</p>
+        <h1>{t('settings.title')}</h1>
+        <p>{t('settings.subtitle')}</p>
       </section>
 
       <section className="settings-card">
         <div className="field-row">
           <label>
-            Default prefix
+            {t('settings.defaultPrefix')}
             <input
               type="text"
               value={settings.prefix}
@@ -44,21 +46,21 @@ const SettingsPage = () => {
             />
           </label>
           <label>
-            Default unit system
+            {t('settings.defaultUnitSystem')}
             <select value={settings.unitSystem} onChange={(event) => handleChange('unitSystem', event.target.value)}>
-              <option value="metric">Metric</option>
-              <option value="imperial">Imperial</option>
+              <option value="metric">{t('settings.metric')}</option>
+              <option value="imperial">{t('settings.imperial')}</option>
             </select>
           </label>
         </div>
         <div className="action-row">
           <button type="button" className="primary" onClick={handleSave}>
-            Save settings
+            {t('settings.save')}
           </button>
           <button type="button" className="secondary" onClick={handleClearHistory}>
-            Clear all history
+            {t('settings.clearHistory')}
           </button>
-          {status ? <span className="status-pill">{status}</span> : null}
+          {statusKey ? <span className="status-pill">{t(statusKey)}</span> : null}
         </div>
       </section>
     </main>

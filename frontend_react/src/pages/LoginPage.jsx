@@ -2,13 +2,15 @@ import { useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { API_BASE_URL } from '../utils/apiConfig';
 import { useAuth } from '../context/AuthContext';
+import useGlossaryTranslation from '../i18n/useGlossaryTranslation';
 
 const LoginPage = () => {
   const { user, login } = useAuth();
   const location = useLocation();
+  const { t } = useGlossaryTranslation();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [errorKey, setErrorKey] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const from = location.state?.from?.pathname || '/';
@@ -19,7 +21,7 @@ const LoginPage = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setError('');
+    setErrorKey('');
     setIsSubmitting(true);
     try {
       const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
@@ -28,13 +30,13 @@ const LoginPage = () => {
         body: JSON.stringify({ username, password }),
       });
       if (!response.ok) {
-        setError('Invalid username or password.');
+        setErrorKey('login.invalidCredentials');
         return;
       }
       const data = await response.json();
       login(data);
     } catch (err) {
-      setError('Unable to login. Please try again.');
+      setErrorKey('login.unableToLogin');
     } finally {
       setIsSubmitting(false);
     }
@@ -43,11 +45,11 @@ const LoginPage = () => {
   return (
     <main className="page">
       <section className="auth-card">
-        <h1>Sign in</h1>
-        <p>Use your Saiguru Industries account to continue.</p>
+        <h1>{t('login.title')}</h1>
+        <p>{t('login.subtitle')}</p>
         <form onSubmit={handleSubmit} className="auth-form">
           <label>
-            Username or email
+            {t('login.usernameOrEmail')}
             <input
               type="text"
               value={username}
@@ -57,7 +59,7 @@ const LoginPage = () => {
             />
           </label>
           <label>
-            Password
+            {t('login.password')}
             <input
               type="password"
               value={password}
@@ -66,9 +68,9 @@ const LoginPage = () => {
               required
             />
           </label>
-          {error ? <div className="error-box">{error}</div> : null}
+          {errorKey ? <div className="error-box">{t(errorKey)}</div> : null}
           <button type="submit" className="primary" disabled={isSubmitting}>
-            {isSubmitting ? 'Signing in...' : 'Login'}
+            {isSubmitting ? t('login.signingIn') : t('login.login')}
           </button>
         </form>
       </section>

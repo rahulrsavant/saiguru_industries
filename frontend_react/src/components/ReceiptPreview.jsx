@@ -1,6 +1,8 @@
 import { forwardRef } from 'react';
+import useGlossaryTranslation from '../i18n/useGlossaryTranslation';
+import { formatDimensionsSummary, translateShapeLabel } from '../i18n/catalog';
 
-const formatIndiaDateTime = (isoString) => {
+const formatIndiaDateTime = (isoString, t) => {
   if (!isoString) return '';
   return new Intl.DateTimeFormat('en-GB', {
     timeZone: 'Asia/Kolkata',
@@ -16,6 +18,7 @@ const formatNumber = (value, digits = 3) =>
   Number.isFinite(value) ? value.toFixed(digits) : '0.000';
 
 const ReceiptPreview = forwardRef(({ session }, ref) => {
+  const { t, i18n } = useGlossaryTranslation();
   const items = session?.items || [];
   const totals = session?.totals || { totalWeightKg: 0 };
   const createdAt = session?.updatedAt || session?.createdAt;
@@ -25,66 +28,70 @@ const ReceiptPreview = forwardRef(({ session }, ref) => {
       <div className="receipt-page" id="pdf-content">
         <header className="receipt-header">
           <div>
-            <h2>Estimate Receipt</h2>
-            <p className="receipt-sub">Saiguru Industries</p>
+            <h2>{t('receipt.title')}</h2>
+            <p className="receipt-sub">{t('receipt.company')}</p>
           </div>
           <div className="receipt-meta">
-            <span>Estimate No</span>
-            <strong>{session?.estimateNo || '—'}</strong>
-            <span>Date</span>
-            <strong>{formatIndiaDateTime(createdAt) || '—'}</strong>
+            <span>{t('receipt.estimateNo')}</span>
+            <strong>{session?.estimateNo || t('general.dash')}</strong>
+            <span>{t('receipt.date')}</span>
+            <strong>{formatIndiaDateTime(createdAt, t) || t('general.dash')}</strong>
           </div>
         </header>
 
         <section className="receipt-customer">
           <div>
-            <span>Customer Name</span>
-            <strong>{session?.customer?.name || '—'}</strong>
+            <span>{t('receipt.customerName')}</span>
+            <strong>{session?.customer?.name || t('general.dash')}</strong>
           </div>
           <div>
-            <span>Business Name</span>
-            <strong>{session?.customer?.businessName || '—'}</strong>
+            <span>{t('receipt.businessName')}</span>
+            <strong>{session?.customer?.businessName || t('general.dash')}</strong>
           </div>
           <div>
-            <span>Mobile No</span>
-            <strong>{session?.customer?.mobile || '—'}</strong>
+            <span>{t('receipt.mobileNo')}</span>
+            <strong>{session?.customer?.mobile || t('general.dash')}</strong>
           </div>
           <div>
-            <span>Email</span>
-            <strong>{session?.customer?.email || '—'}</strong>
+            <span>{t('receipt.email')}</span>
+            <strong>{session?.customer?.email || t('general.dash')}</strong>
           </div>
         </section>
 
         <table className="receipt-table">
           <thead>
             <tr>
-              <th>Sr</th>
-              <th>Shape</th>
-              <th>Alloy</th>
-              <th>Pieces</th>
-              <th>Dimensions</th>
-              <th className="text-right">Result (kg)</th>
+              <th>{t('table.sr')}</th>
+              <th>{t('table.shape')}</th>
+              <th>{t('table.alloy')}</th>
+              <th>{t('table.pieces')}</th>
+              <th>{t('table.dimensions')}</th>
+              <th className="text-right">{t('table.resultKg')}</th>
             </tr>
           </thead>
           <tbody>
             {items.length === 0 ? (
               <tr>
-                <td colSpan="6" className="empty-cell">No items added.</td>
+                <td colSpan="6" className="empty-cell">{t('receipt.noItems')}</td>
               </tr>
             ) : (
               items.map((item, index) => (
                 <tr key={item.lineId || index}>
                   <td>{index + 1}</td>
-                  <td>{item.shape?.label || 'n/a'}</td>
-                  <td>{item.alloy?.label || 'n/a'}</td>
+                  <td>
+                    {item.shape?.label
+                      ? translateShapeLabel(item.shape.label, t, i18n.language)
+                      : t('general.na')}
+                  </td>
+                  <td>{item.alloy?.label || t('general.na')}</td>
                   <td>
                     {item.mode === 'WEIGHT_TO_QTY'
                       ? `${item.pieces} kg`
                       : Number.isFinite(item.pieces)
                         ? item.pieces
-                        : 'n/a'}
+                        : t('general.na')}
                   </td>
-                  <td>{item.dimensionsSummary || 'n/a'}</td>
+                  <td>{formatDimensionsSummary(item.dimensions, t, i18n.language)}</td>
                   <td className="text-right">{formatNumber(item.calculation?.weightKg)}</td>
                 </tr>
               ))
@@ -92,7 +99,7 @@ const ReceiptPreview = forwardRef(({ session }, ref) => {
           </tbody>
           <tfoot>
             <tr>
-              <td colSpan="5">Total</td>
+              <td colSpan="5">{t('receipt.total')}</td>
               <td className="text-right">{formatNumber(totals.totalWeightKg)}</td>
             </tr>
           </tfoot>
