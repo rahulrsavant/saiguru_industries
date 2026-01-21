@@ -2,9 +2,10 @@ import { useEffect, useMemo, useState } from 'react';
 import { DEFAULT_QUANTITY } from '../data/metalCalculatorConfig';
 import { currencyCode } from '../constants/currency';
 import { formatCurrency } from '../utils/formatCurrency';
+import { API_BASE_URL } from '../utils/apiConfig';
+import { authFetch } from '../utils/authFetch';
 import ShapeDiagramCard from './ShapeDiagramCard';
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8080';
 const MENU_ORDER = [
   'Pipe',
   'Angle',
@@ -145,7 +146,7 @@ const Calculator = ({ estimateNo, settings, onAddLineItem, validateCustomer, pre
   useEffect(() => {
     const fetchCatalog = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/api/catalog`);
+        const response = await authFetch(`${API_BASE_URL}/api/catalog`);
         if (!response.ok) {
           throw new Error('Unable to load catalog.');
         }
@@ -158,7 +159,7 @@ const Calculator = ({ estimateNo, settings, onAddLineItem, validateCustomer, pre
 
     const fetchDensityCatalog = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/api/density-catalog`);
+        const response = await authFetch(`${API_BASE_URL}/api/density-catalog`);
         if (!response.ok) {
           throw new Error('Unable to load density catalog.');
         }
@@ -398,7 +399,7 @@ const Calculator = ({ estimateNo, settings, onAddLineItem, validateCustomer, pre
         })),
       };
 
-      const response = await fetch(`${API_BASE_URL}/api/calculate`, {
+      const response = await authFetch(`${API_BASE_URL}/api/calculate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
