@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 160" role="img" aria-label="Rebar diagram">
+  <defs>
+    <style>
+      .line{fill:none;stroke:#111;stroke-width:2}
+      .label{font:12px sans-serif;fill:#111}
+    </style>
+  </defs>
+  <circle class="line" cx="120" cy="80" r="46" />
+  <path class="line" d="M78 80 C88 70, 98 90, 108 80 C118 70, 128 90, 138 80 C148 70, 158 90, 168 80" />
+  <line class="line" x1="74" y1="80" x2="166" y2="80" />
+  <text class="label" x="112" y="68">D</text>
+</svg>

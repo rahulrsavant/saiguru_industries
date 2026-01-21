@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 160" role="img" aria-label="Machine screw diagram">
+  <defs>
+    <style>
+      .line{fill:none;stroke:#111;stroke-width:2}
+      .label{font:12px sans-serif;fill:#111}
+    </style>
+  </defs>
+  <rect class="line" x="60" y="50" width="40" height="20" />
+  <rect class="line" x="100" y="54" width="90" height="12" />
+  <line class="line" x1="100" y1="40" x2="190" y2="40" />
+  <text class="label" x="142" y="34">L</text>
+  <line class="line" x1="80" y1="44" x2="80" y2="80" />
+  <text class="label" x="70" y="92">D</text>
+</svg>

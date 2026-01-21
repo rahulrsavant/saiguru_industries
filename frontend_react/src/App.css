@@ -346,6 +346,34 @@ select {
   gap: 16px;
 }
 
+.shape-diagram-card {
+  border: 1px solid #e6e6e6;
+  border-radius: 12px;
+  padding: 16px;
+  background: #fafafa;
+  display: grid;
+  gap: 12px;
+  justify-items: center;
+  text-align: center;
+}
+
+.shape-diagram-frame {
+  width: min(260px, 100%);
+  display: grid;
+  place-items: center;
+}
+
+.shape-diagram-image {
+  width: 100%;
+  height: auto;
+  max-width: 260px;
+}
+
+.shape-diagram-label {
+  font-size: 12px;
+  color: #4a4a4a;
+}
+
 .result-card {
   background: #f6fbfa;
   border: 1px solid #d7e9e7;

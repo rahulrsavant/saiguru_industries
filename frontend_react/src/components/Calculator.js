@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { DEFAULT_QUANTITY } from '../data/metalCalculatorConfig';
+import ShapeDiagramCard from './ShapeDiagramCard';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8080';
 const MENU_ORDER = [
@@ -16,6 +17,26 @@ const MENU_ORDER = [
   'Screw',
   'Nut',
 ];
+
+const DIAGRAM_KEY_BY_CALCULATOR_ID = {
+  rolled_pipe_round: 'pipe_round',
+  rolled_pipe_square: 'pipe_square',
+  rolled_pipe_rectangular: 'pipe_rectangular',
+  rolled_angle_equal: 'angle_equal',
+  rolled_angle_unequal: 'angle_unequal',
+  rolled_channel_c: 'channel_c',
+  rolled_channel_u: 'channel_u',
+  rolled_beam_i: 'beam_i',
+  rolled_beam_t: 'beam_t',
+  rolled_flat_bar: 'flat_bar',
+  rolled_round_bar: 'round_bar',
+  rolled_sheet: 'sheet',
+  rolled_square_bar: 'square_bar',
+  rolled_rebar: 'rebar',
+  fastener_bolt_hex: 'bolt_hex',
+  fastener_nut_hex: 'nut_hex',
+  fastener_screw_machine: 'screw_machine',
+};
 
 const parseNumber = (value) => {
   if (value === '' || value === null || value === undefined) return NaN;
@@ -441,6 +462,10 @@ const Calculator = ({ estimateNo, settings, onAddLineItem, validateCustomer, pre
   const isFasteners = activeCalculator?.category === 'FASTENERS';
   const isWeightToQty = mode === 'WEIGHT_TO_QTY';
   const isSheet = activeCalculator?.id === 'rolled_sheet';
+  const shapeDiagramKey = useMemo(() => {
+    if (!activeCalculator) return 'unknown';
+    return DIAGRAM_KEY_BY_CALCULATOR_ID[activeCalculator.id] || 'unknown';
+  }, [activeCalculator]);
   const visibleFields = useMemo(() => {
     if (!activeCalculator?.fields) return [];
     if (!isSheet) return activeCalculator.fields;
@@ -763,6 +788,7 @@ const Calculator = ({ estimateNo, settings, onAddLineItem, validateCustomer, pre
           </div>
 
           <div className="result-section">
+            <ShapeDiagramCard shapeKey={shapeDiagramKey} />
             <div className="result-card">
               <div className="result-label">{isWeightToQty ? 'Estimated Quantity' : 'Calculated Weight'}</div>
               <div className="result-value">

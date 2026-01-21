@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 160" role="img" aria-label="Sheet diagram">
+  <defs>
+    <style>
+      .line{fill:none;stroke:#111;stroke-width:2}
+      .label{font:12px sans-serif;fill:#111}
+    </style>
+  </defs>
+  <rect class="line" x="52" y="50" width="136" height="60" />
+  <line class="line" x1="52" y1="42" x2="188" y2="42" />
+  <text class="label" x="118" y="38">W</text>
+  <line class="line" x1="196" y1="50" x2="196" y2="110" />
+  <text class="label" x="202" y="84">T</text>
+</svg>

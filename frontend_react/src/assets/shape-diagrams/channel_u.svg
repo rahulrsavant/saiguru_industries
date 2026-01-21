@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 160" role="img" aria-label="Channel U diagram">
+  <defs>
+    <style>
+      .line{fill:none;stroke:#111;stroke-width:2}
+      .label{font:12px sans-serif;fill:#111}
+    </style>
+  </defs>
+  <path class="line" d="M80 24 H160 V120 H136 V48 H104 V120 H80 Z" />
+  <line class="line" x1="80" y1="16" x2="160" y2="16" />
+  <text class="label" x="116" y="12">W</text>
+  <line class="line" x1="72" y1="24" x2="72" y2="120" />
+  <text class="label" x="60" y="76">H</text>
+  <line class="line" x1="160" y1="72" x2="176" y2="72" />
+  <text class="label" x="180" y="76">T</text>
+</svg>

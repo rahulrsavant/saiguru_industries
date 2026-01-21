@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 160" role="img" aria-label="Hex bolt diagram">
+  <defs>
+    <style>
+      .line{fill:none;stroke:#111;stroke-width:2}
+      .label{font:12px sans-serif;fill:#111}
+    </style>
+  </defs>
+  <polygon class="line" points="60,50 80,34 110,34 130,50 110,66 80,66" />
+  <rect class="line" x="130" y="46" width="70" height="28" />
+  <line class="line" x1="130" y1="40" x2="200" y2="40" />
+  <text class="label" x="160" y="34">L</text>
+  <line class="line" x1="94" y1="28" x2="94" y2="72" />
+  <text class="label" x="84" y="84">D</text>
+</svg>

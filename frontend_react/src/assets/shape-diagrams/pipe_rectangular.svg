@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 160" role="img" aria-label="Rectangular pipe diagram">
+  <defs>
+    <style>
+      .line{fill:none;stroke:#111;stroke-width:2}
+      .label{font:12px sans-serif;fill:#111}
+    </style>
+  </defs>
+  <rect class="line" x="52" y="34" width="136" height="92" />
+  <rect class="line" x="66" y="48" width="108" height="64" />
+  <line class="line" x1="52" y1="24" x2="188" y2="24" />
+  <text class="label" x="118" y="18">W</text>
+  <line class="line" x1="198" y1="34" x2="198" y2="126" />
+  <text class="label" x="204" y="82">H</text>
+  <line class="line" x1="176" y1="48" x2="190" y2="62" />
+  <text class="label" x="192" y="62">T</text>
+</svg>

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 160" role="img" aria-label="Round bar diagram">
+  <defs>
+    <style>
+      .line{fill:none;stroke:#111;stroke-width:2}
+      .label{font:12px sans-serif;fill:#111}
+    </style>
+  </defs>
+  <circle class="line" cx="120" cy="80" r="48" />
+  <line class="line" x1="72" y1="80" x2="168" y2="80" />
+  <text class="label" x="112" y="70">D</text>
+</svg>

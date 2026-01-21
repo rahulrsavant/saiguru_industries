@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 160" role="img" aria-label="T beam diagram">
+  <defs>
+    <style>
+      .line{fill:none;stroke:#111;stroke-width:2}
+      .label{font:12px sans-serif;fill:#111}
+    </style>
+  </defs>
+  <path class="line" d="M70 24 H170 V44 H132 V136 H108 V44 H70 Z" />
+  <line class="line" x1="70" y1="16" x2="170" y2="16" />
+  <text class="label" x="118" y="12">B</text>
+  <line class="line" x1="62" y1="24" x2="62" y2="136" />
+  <text class="label" x="50" y="84">H</text>
+  <line class="line" x1="132" y1="84" x2="152" y2="84" />
+  <text class="label" x="156" y="88">Tw</text>
+</svg>

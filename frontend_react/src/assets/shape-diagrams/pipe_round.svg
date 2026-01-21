@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 160" role="img" aria-label="Round pipe diagram">
+  <defs>
+    <style>
+      .line{fill:none;stroke:#111;stroke-width:2}
+      .label{font:12px sans-serif;fill:#111}
+      .dash{stroke-dasharray:4 3}
+    </style>
+  </defs>
+  <circle class="line" cx="120" cy="80" r="48" />
+  <circle class="line" cx="120" cy="80" r="34" />
+  <line class="line" x1="72" y1="80" x2="168" y2="80" />
+  <text class="label" x="108" y="70">OD</text>
+  <line class="line dash" x1="154" y1="80" x2="168" y2="66" />
+  <text class="label" x="170" y="64">T</text>
+</svg>

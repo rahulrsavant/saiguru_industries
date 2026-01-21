@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 160" role="img" aria-label="Hex nut diagram">
+  <defs>
+    <style>
+      .line{fill:none;stroke:#111;stroke-width:2}
+      .label{font:12px sans-serif;fill:#111}
+    </style>
+  </defs>
+  <polygon class="line" points="80,50 100,34 140,34 160,50 140,66 100,66" />
+  <circle class="line" cx="120" cy="50" r="12" />
+  <line class="line" x1="80" y1="26" x2="160" y2="26" />
+  <text class="label" x="116" y="22">D</text>
+  <line class="line" x1="168" y1="34" x2="168" y2="66" />
+  <text class="label" x="174" y="54">T</text>
+</svg>

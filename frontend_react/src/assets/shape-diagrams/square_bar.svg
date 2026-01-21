@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 160" role="img" aria-label="Square bar diagram">
+  <defs>
+    <style>
+      .line{fill:none;stroke:#111;stroke-width:2}
+      .label{font:12px sans-serif;fill:#111}
+    </style>
+  </defs>
+  <rect class="line" x="76" y="36" width="88" height="88" />
+  <line class="line" x1="76" y1="28" x2="164" y2="28" />
+  <text class="label" x="116" y="24">W</text>
+</svg>

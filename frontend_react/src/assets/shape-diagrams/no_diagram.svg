@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 160" role="img" aria-label="No diagram available">
+  <defs>
+    <style>
+      .line{fill:none;stroke:#777;stroke-width:2;stroke-dasharray:6 4}
+      .label{font:12px sans-serif;fill:#777}
+    </style>
+  </defs>
+  <rect class="line" x="28" y="24" width="184" height="112" rx="6" />
+  <text class="label" x="70" y="86">No diagram available</text>
+</svg>

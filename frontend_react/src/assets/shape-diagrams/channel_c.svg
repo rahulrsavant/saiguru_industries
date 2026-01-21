@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 160" role="img" aria-label="Channel C diagram">
+  <defs>
+    <style>
+      .line{fill:none;stroke:#111;stroke-width:2}
+      .label{font:12px sans-serif;fill:#111}
+    </style>
+  </defs>
+  <path class="line" d="M70 24 H140 V40 H88 V120 H140 V136 H70 Z" />
+  <line class="line" x1="70" y1="16" x2="140" y2="16" />
+  <text class="label" x="102" y="12">W</text>
+  <line class="line" x1="62" y1="24" x2="62" y2="136" />
+  <text class="label" x="50" y="84">H</text>
+  <line class="line" x1="140" y1="88" x2="158" y2="88" />
+  <text class="label" x="162" y="92">T</text>
+</svg>

@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 160" role="img" aria-label="Unequal angle diagram">
+  <defs>
+    <style>
+      .line{fill:none;stroke:#111;stroke-width:2}
+      .label{font:12px sans-serif;fill:#111}
+    </style>
+  </defs>
+  <path class="line" d="M60 24 H140 V64 H80 V120 H60 Z" />
+  <line class="line" x1="60" y1="16" x2="140" y2="16" />
+  <text class="label" x="94" y="12">A</text>
+  <line class="line" x1="52" y1="24" x2="52" y2="120" />
+  <text class="label" x="40" y="78">B</text>
+  <line class="line" x1="140" y1="64" x2="160" y2="64" />
+  <text class="label" x="164" y="68">T</text>
+</svg>
