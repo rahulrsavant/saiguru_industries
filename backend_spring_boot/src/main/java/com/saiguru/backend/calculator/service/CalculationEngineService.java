@@ -189,6 +189,47 @@ public class CalculationEngineService {
                 );
             }
         }
+        if ("ANGLE_EQUAL".equals(formulaKey)) {
+            double leg = dimensions.get("leg");
+            double thickness = dimensions.get("thickness");
+            if (thickness >= leg) {
+                throw new ValidationException(
+                    "Thickness must be less than the leg length.",
+                    "thickness"
+                );
+            }
+        }
+        if ("ANGLE_UNEQUAL".equals(formulaKey)) {
+            double legA = dimensions.get("leg_a");
+            double legB = dimensions.get("leg_b");
+            double thickness = dimensions.get("thickness");
+            if (thickness >= legA || thickness >= legB) {
+                throw new ValidationException(
+                    "Thickness must be less than both leg lengths.",
+                    "thickness"
+                );
+            }
+        }
+        if ("BEAM_I".equals(formulaKey)) {
+            double height = dimensions.get("height");
+            double flangeThickness = dimensions.get("flange_thickness");
+            if (flangeThickness * 2.0 >= height) {
+                throw new ValidationException(
+                    "Flange thickness must be less than half of the overall height.",
+                    "flange_thickness"
+                );
+            }
+        }
+        if ("BEAM_T".equals(formulaKey)) {
+            double height = dimensions.get("height");
+            double flangeThickness = dimensions.get("flange_thickness");
+            if (flangeThickness >= height) {
+                throw new ValidationException(
+                    "Flange thickness must be less than the overall height.",
+                    "flange_thickness"
+                );
+            }
+        }
         if ("NUT_HEX".equals(formulaKey)) {
             double innerDiameter = dimensions.get("diameter");
             if (innerDiameter <= 0) {
