@@ -170,6 +170,10 @@
     "errorUnableToCalculate": "Unable to calculate weight."
   },
   "catalog": {
+    "title": "Catalog",
+    "searchPlaceholder": "Search catalog",
+    "toggleOpen": "Show catalog",
+    "toggleClose": "Hide catalog",
     "menu": {
       "pipe": "Pipe",
       "angle": "Angle",

@@ -170,6 +170,10 @@
     "errorUnableToCalculate": "वजनाची गणना होऊ शकली नाही."
   },
   "catalog": {
+    "title": "कॅटलॉग",
+    "searchPlaceholder": "कॅटलॉग शोधा",
+    "toggleOpen": "कॅटलॉग दाखवा",
+    "toggleClose": "कॅटलॉग लपवा",
     "menu": {
       "pipe": "Pipe",
       "angle": "Angle",

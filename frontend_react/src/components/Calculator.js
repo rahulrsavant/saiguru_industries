@@ -131,7 +131,8 @@ const Calculator = ({ estimateNo, settings, onAddLineItem, validateCustomer, pre
   const [metal, setMetal] = useState('');
   const [alloy, setAlloy] = useState('');
   const [activeCalculatorId, setActiveCalculatorId] = useState('');
-  const [activeMenuLabel, setActiveMenuLabel] = useState('');
+  const [catalogQuery, setCatalogQuery] = useState('');
+  const [isCatalogOpen, setIsCatalogOpen] = useState(true);
   const [piecesOrQty, setPiecesOrQty] = useState(DEFAULT_QUANTITY);
   const [mode, setMode] = useState('QTY_TO_WEIGHT');
   const [dimensions, setDimensions] = useState({});
@@ -188,7 +189,6 @@ const Calculator = ({ estimateNo, settings, onAddLineItem, validateCustomer, pre
     const calculator = catalog.calculators?.find((entry) => entry.id === prefillItem.shape?.id);
     if (calculator) {
       setActiveCalculatorId(calculator.id);
-      setActiveMenuLabel(calculator.menuLabel);
     }
     const metalIdFromItem = prefillItem.metal?.id;
     let nextMetalId = metalIdFromItem;
@@ -254,6 +254,47 @@ const Calculator = ({ estimateNo, settings, onAddLineItem, validateCustomer, pre
     return items;
   }, [catalog]);
 
+  const catalogChips = useMemo(() => {
+    if (!catalog?.calculators) return [];
+    const withLabels = catalog.calculators.map((calculator) => {
+      const menuText = translateMenuLabel(calculator.menuLabel, t, i18n.language);
+      const subtypeText = calculator.subtypeLabel
+        ? translateSubtypeLabel(calculator.subtypeLabel, t, i18n.language)
+        : '';
+      const label = subtypeText ? `${menuText} - ${subtypeText}` : menuText;
+      const searchText = [
+        calculator.menuLabel,
+        calculator.subtypeLabel,
+        calculator.id,
+        menuText,
+        subtypeText,
+        label,
+      ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
+      return { calculator, label, searchText };
+    });
+
+    return withLabels.sort((a, b) => {
+      const indexA = MENU_ORDER.indexOf(a.calculator.menuLabel);
+      const indexB = MENU_ORDER.indexOf(b.calculator.menuLabel);
+      const safeIndexA = indexA === -1 ? Number.MAX_SAFE_INTEGER : indexA;
+      const safeIndexB = indexB === -1 ? Number.MAX_SAFE_INTEGER : indexB;
+      if (safeIndexA !== safeIndexB) {
+        return safeIndexA - safeIndexB;
+      }
+      return (a.calculator.subtypeLabel || '').localeCompare(b.calculator.subtypeLabel || '');
+    });
+  }, [catalog, t, i18n.language]);
+
+  const filteredCatalogChips = useMemo(() => {
+    const query = catalogQuery.trim().toLowerCase();
+    if (!query) return catalogChips;
+    // Match query against translated labels and raw keys so localized/English terms work.
+    return catalogChips.filter((chip) => chip.searchText.includes(query));
+  }, [catalogChips, catalogQuery]);
+
   const activeCalculator = useMemo(() => {
     if (!catalog?.calculators) return null;
     return catalog.calculators.find((calculator) => calculator.id === activeCalculatorId) || null;
@@ -283,10 +324,22 @@ const Calculator = ({ estimateNo, settings, onAddLineItem, validateCustomer, pre
     if (!menuItems.length) return;
     if (!activeCalculatorId) {
       const defaultMenu = menuItems[0];
-      setActiveMenuLabel(defaultMenu.menuLabel);
       setActiveCalculatorId(defaultMenu.calculators[0].id);
     }
   }, [menuItems, activeCalculatorId]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined;
+    const mediaQuery = window.matchMedia('(max-width: 720px)');
+    const handleChange = () => {
+      if (!mediaQuery.matches) {
+        setIsCatalogOpen(true);
+      }
+    };
+    handleChange();
+    mediaQuery.addEventListener?.('change', handleChange);
+    return () => mediaQuery.removeEventListener?.('change', handleChange);
+  }, []);
 
   useEffect(() => {
     setDimensions(buildDimensionState(activeCalculator));
@@ -471,14 +524,6 @@ const Calculator = ({ estimateNo, settings, onAddLineItem, validateCustomer, pre
     performCalculation();
   }, [metal, alloy]);
 
-  const handleMenuSelect = (menuLabel) => {
-    setActiveMenuLabel(menuLabel);
-    const menu = menuItems.find((item) => item.menuLabel === menuLabel);
-    if (menu) {
-      setActiveCalculatorId(menu.calculators[0].id);
-    }
-  };
-
   const isFasteners = activeCalculator?.category === 'FASTENERS';
   const isWeightToQty = mode === 'WEIGHT_TO_QTY';
   const isSheet = activeCalculator?.id === 'rolled_sheet';
@@ -629,35 +674,47 @@ const Calculator = ({ estimateNo, settings, onAddLineItem, validateCustomer, pre
         </div>
 
         <div className="calculator-grid catalog-layout">
-          <aside className="menu-panel">
-            <div className="menu-title">{t('calculator.catalog')}</div>
-            {menuItems.map((menu) => (
-              <div key={menu.menuLabel} className="menu-group">
-                <button
-                  type="button"
-                  className={`menu-item ${activeMenuLabel === menu.menuLabel ? 'active' : ''}`}
-                  onClick={() => handleMenuSelect(menu.menuLabel)}
-                >
-                  {translateMenuLabel(menu.menuLabel, t, i18n.language)}
-                </button>
-                {activeMenuLabel === menu.menuLabel && menu.calculators.length > 1 ? (
-                  <div className="submenu">
-                    {menu.calculators.map((calculator) => (
-                      <button
-                        key={calculator.id}
-                        type="button"
-                        className={`submenu-item ${activeCalculatorId === calculator.id ? 'active' : ''}`}
-                        onClick={() => setActiveCalculatorId(calculator.id)}
-                      >
-                        {calculator.subtypeLabel
-                          ? translateSubtypeLabel(calculator.subtypeLabel, t, i18n.language)
-                          : translateMenuLabel(calculator.menuLabel, t, i18n.language)}
-                      </button>
-                    ))}
-                  </div>
-                ) : null}
+          <aside className={`menu-panel catalog-panel ${isCatalogOpen ? 'is-open' : 'is-collapsed'}`}>
+            <div className="catalog-header">
+              <div className="menu-title">{t('catalog.title')}</div>
+              <button
+                type="button"
+                className="catalog-toggle"
+                onClick={() => setIsCatalogOpen((prev) => !prev)}
+                aria-expanded={isCatalogOpen}
+                aria-label={isCatalogOpen ? t('catalog.toggleClose') : t('catalog.toggleOpen')}
+                title={isCatalogOpen ? t('catalog.toggleClose') : t('catalog.toggleOpen')}
+              >
+                {t('catalog.title')}
+              </button>
+            </div>
+            <div className="catalog-body">
+              <label className="catalog-search">
+                <span className="visually-hidden">{t('catalog.searchPlaceholder')}</span>
+                <input
+                  type="search"
+                  value={catalogQuery}
+                  onChange={(event) => setCatalogQuery(event.target.value)}
+                  placeholder={t('catalog.searchPlaceholder')}
+                />
+              </label>
+              <div className="catalog-chips">
+                {filteredCatalogChips.map((chip) => (
+                  <button
+                    key={chip.calculator.id}
+                    type="button"
+                    className={`catalog-chip ${
+                      activeCalculatorId === chip.calculator.id ? 'selected' : ''
+                    }`}
+                    onClick={() => {
+                      setActiveCalculatorId(chip.calculator.id);
+                    }}
+                  >
+                    {chip.label}
+                  </button>
+                ))}
               </div>
-            ))}
+            </div>
           </aside>
 
           <div className="form-section">
@@ -692,10 +749,6 @@ const Calculator = ({ estimateNo, settings, onAddLineItem, validateCustomer, pre
                   value={activeCalculatorId}
                   onChange={(event) => {
                     const nextId = event.target.value;
-                    const nextCalculator = catalog?.calculators?.find((entry) => entry.id === nextId);
-                    if (nextCalculator) {
-                      setActiveMenuLabel(nextCalculator.menuLabel);
-                    }
                     setActiveCalculatorId(nextId);
                   }}
                 >

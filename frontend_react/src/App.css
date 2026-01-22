@@ -160,11 +160,13 @@
 .menu-panel {
   border: 1px solid #e7e7e7;
   border-radius: 10px;
-  padding: 16px;
+  padding: 12px;
   background: #fbfbfb;
   display: grid;
-  gap: 12px;
+  gap: 10px;
   align-self: start;
+  max-height: 70vh;
+  overflow: auto;
 }
 
 .menu-title {
@@ -173,6 +175,72 @@
   letter-spacing: 1px;
   color: #6a6a6a;
   font-weight: 600;
+}
+
+.catalog-panel.is-collapsed .catalog-body {
+  display: none;
+}
+
+.catalog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.catalog-toggle {
+  border: 1px solid #e0e0e0;
+  background: #fff;
+  color: #333;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: none;
+}
+
+.catalog-body {
+  display: grid;
+  gap: 10px;
+}
+
+.catalog-search input {
+  width: 100%;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 12px;
+}
+
+.catalog-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.catalog-chip {
+  border: 1px solid #e0e0e0;
+  background: #fff;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  line-height: 1.1;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+
+.catalog-chip.selected {
+  border-color: #f25c2a;
+  background: #fff1ea;
+  color: #a53b18;
+  font-weight: 600;
+}
+
+.catalog-chip:focus-visible,
+.catalog-toggle:focus-visible {
+  outline: 2px solid #f25c2a;
+  outline-offset: 2px;
 }
 
 .menu-group {
@@ -1061,6 +1129,16 @@ select {
   .topbar {
     grid-template-columns: 1fr;
     gap: 10px;
+  }
+
+  .catalog-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .catalog-header .menu-title {
+    display: none;
   }
 
   .topnav {
