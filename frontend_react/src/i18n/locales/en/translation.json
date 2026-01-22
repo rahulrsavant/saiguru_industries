@@ -169,6 +169,16 @@
     "errorCalculationFailed": "Calculation failed.",
     "errorUnableToCalculate": "Unable to calculate weight."
   },
+  "dimensions": {
+    "title": "Dimensions",
+    "unitLabel": "Units",
+    "placeholders": {
+      "outerWidth": "Enter outer width",
+      "outerHeight": "Enter outer height",
+      "thickness": "Enter thickness",
+      "length": "Enter length"
+    }
+  },
   "catalog": {
     "title": "Catalog",
     "searchPlaceholder": "Search catalog",

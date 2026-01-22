@@ -169,6 +169,16 @@
     "errorCalculationFailed": "गणना विफल हुई।",
     "errorUnableToCalculate": "वजन की गणना नहीं हो सकी।"
   },
+  "dimensions": {
+    "title": "आयाम",
+    "unitLabel": "इकाइयाँ",
+    "placeholders": {
+      "outerWidth": "बाहरी चौड़ाई दर्ज करें",
+      "outerHeight": "बाहरी ऊंचाई दर्ज करें",
+      "thickness": "मोटाई दर्ज करें",
+      "length": "लंबाई दर्ज करें"
+    }
+  },
   "catalog": {
     "title": "कैटलॉग",
     "searchPlaceholder": "कैटलॉग खोजें",

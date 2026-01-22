@@ -169,6 +169,16 @@
     "errorCalculationFailed": "गणना अयशस्वी झाली.",
     "errorUnableToCalculate": "वजनाची गणना होऊ शकली नाही."
   },
+  "dimensions": {
+    "title": "आयाम",
+    "unitLabel": "एकक",
+    "placeholders": {
+      "outerWidth": "बाह्य रुंदी भरा",
+      "outerHeight": "बाह्य उंची भरा",
+      "thickness": "जाडी भरा",
+      "length": "लांबी भरा"
+    }
+  },
   "catalog": {
     "title": "कॅटलॉग",
     "searchPlaceholder": "कॅटलॉग शोधा",

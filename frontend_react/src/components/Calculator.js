@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { DEFAULT_QUANTITY } from '../data/metalCalculatorConfig';
 import { currencyCode } from '../constants/currency';
 import { formatCurrency } from '../utils/formatCurrency';
@@ -82,17 +82,67 @@ const buildDimensionState = (calculator) => {
   }, {});
 };
 
-const FieldInput = ({ field, label, value, unit, errorText, onValueChange, onUnitChange }) => (
-  <label className={`dimension-field ${errorText ? 'has-error' : ''}`}>
-    {label}
+const DIMENSION_PLACEHOLDER_KEYS = {
+  outside_width: 'dimensions.placeholders.outerWidth',
+  outside_height: 'dimensions.placeholders.outerHeight',
+  wall_thickness: 'dimensions.placeholders.thickness',
+  thickness: 'dimensions.placeholders.thickness',
+  length: 'dimensions.placeholders.length',
+};
+
+const getStepForUnit = (unit) => {
+  switch (unit) {
+    case 'mm':
+      return '1';
+    case 'cm':
+      return '0.1';
+    case 'm':
+      return '0.01';
+    case 'in':
+    case 'ft':
+      return '0.01';
+    default:
+      return '0.01';
+  }
+};
+
+const DimensionField = ({
+  field,
+  label,
+  placeholder,
+  value,
+  unit,
+  errorText,
+  onValueChange,
+  onUnitChange,
+  onMoveNext,
+  inputRef,
+  t,
+}) => (
+  <div className={`dimension-field ${errorText ? 'has-error' : ''}`}>
+    <label className="dimension-label" htmlFor={`dimension-${field.key}`}>
+      {label}
+      {field.required ? <span className="required-indicator">*</span> : null}
+    </label>
     <div className="input-unit">
       <input
-        type="text"
+        id={`dimension-${field.key}`}
+        type="number"
         inputMode="decimal"
+        min="0"
+        step={getStepForUnit(unit)}
+        placeholder={placeholder || ''}
         value={value}
+        ref={inputRef}
+        onKeyDown={(event) => {
+          if (event.key === 'Enter') {
+            event.preventDefault();
+            onMoveNext();
+          }
+        }}
         onChange={(event) => onValueChange(event.target.value)}
       />
-      <select value={unit} onChange={(event) => onUnitChange(event.target.value)}>
+      <select value={unit} aria-label={t('dimensions.unitLabel')} onChange={(event) => onUnitChange(event.target.value)}>
         {field.allowedUnits.map((allowedUnit) => (
           <option key={allowedUnit} value={allowedUnit}>
             {allowedUnit}
@@ -101,8 +151,51 @@ const FieldInput = ({ field, label, value, unit, errorText, onValueChange, onUni
       </select>
     </div>
     {errorText ? <span className="field-error">{errorText}</span> : null}
-  </label>
+  </div>
 );
+
+const DimensionsForm = ({
+  fields,
+  dimensions,
+  fieldErrors,
+  t,
+  lang,
+  getFieldErrorText,
+  onValueChange,
+  onUnitChange,
+}) => {
+  const inputRefs = useRef([]);
+
+  return (
+    <div className="dimension-section">
+      <div className="dimension-title">{t('dimensions.title')}</div>
+      <div className="dims-grid">
+        {fields.map((field, index) => {
+          const placeholderKey = DIMENSION_PLACEHOLDER_KEYS[field.key];
+          const placeholder = placeholderKey ? t(placeholderKey) : '';
+          return (
+            <DimensionField
+              key={field.key}
+              field={field}
+              label={translateFieldLabel(field.label, t, lang)}
+              placeholder={placeholder}
+              value={dimensions[field.key]?.value ?? ''}
+              unit={dimensions[field.key]?.unit ?? field.defaultUnit}
+              errorText={getFieldErrorText(fieldErrors[field.key])}
+              onValueChange={(value) => onValueChange(field.key, value)}
+              onUnitChange={(unit) => onUnitChange(field.key, unit)}
+              onMoveNext={() => inputRefs.current[index + 1]?.focus?.()}
+              inputRef={(node) => {
+                inputRefs.current[index] = node;
+              }}
+              t={t}
+            />
+          );
+        })}
+      </div>
+    </div>
+  );
+};
 
 const buildDimensionsSummary = (calculator, dimensions, t, lang) => {
   if (!calculator?.fields) return t('general.na');
@@ -803,21 +896,16 @@ const Calculator = ({ estimateNo, settings, onAddLineItem, validateCustomer, pre
               </label>
             </div>
 
-            <div className="dimension-section">
-              <div className="dimension-title">{t('calculator.dimensions')}</div>
-              {visibleFields.map((field) => (
-                <FieldInput
-                  key={field.key}
-                  field={field}
-                  label={translateFieldLabel(field.label, t, i18n.language)}
-                  value={dimensions[field.key]?.value ?? ''}
-                  unit={dimensions[field.key]?.unit ?? field.defaultUnit}
-                  errorText={getFieldErrorText(fieldErrors[field.key])}
-                  onValueChange={(value) => updateDimensionValue(field.key, value)}
-                  onUnitChange={(unit) => updateDimensionUnit(field.key, unit)}
-                />
-              ))}
-            </div>
+            <DimensionsForm
+              fields={visibleFields}
+              dimensions={dimensions}
+              fieldErrors={fieldErrors}
+              t={t}
+              lang={i18n.language}
+              getFieldErrorText={getFieldErrorText}
+              onValueChange={updateDimensionValue}
+              onUnitChange={updateDimensionUnit}
+            />
 
             {isSheet ? (
               <div className="sheet-pricing">

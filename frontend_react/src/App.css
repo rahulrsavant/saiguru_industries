@@ -317,23 +317,59 @@ select {
 
 .dimension-section {
   display: grid;
-  gap: 12px;
+  gap: 8px;
 }
 
 .dimension-title {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   color: #1f1f1f;
+  margin: 0;
 }
 
 .dimension-field {
   display: grid;
-  gap: 6px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  gap: 8px;
+  align-items: center;
 }
 
 .dimension-field.has-error input,
 .dimension-field.has-error select {
   border-color: #e07373;
+}
+
+.dims-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px 16px;
+}
+
+.dimension-label {
+  display: block;
+  font-size: 0.85rem;
+  line-height: 1.2;
+  color: #4a4a4a;
+}
+
+.required-indicator {
+  margin-left: 4px;
+  color: #b00020;
+}
+
+.dimension-field .input-unit {
+  grid-template-columns: minmax(0, 1fr) 80px;
+  gap: 6px;
+}
+
+.dimension-field input,
+.dimension-field select {
+  height: 34px;
+  font-size: 13px;
+}
+
+.dimension-field .field-error {
+  grid-column: 1 / -1;
 }
 
 .field-error {
@@ -356,6 +392,23 @@ select {
   background: #f6f7f8;
   font-size: 12px;
   color: #5a5a5a;
+}
+
+@media (max-width: 1100px) {
+  .dims-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .dims-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dimension-field {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
 }
 
 .sheet-pricing {
