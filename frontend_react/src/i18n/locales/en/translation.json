@@ -1,7 +1,10 @@
 {
   "general": {
     "na": "n/a",
-    "dash": "—"
+    "dash": "—",
+    "close": "Close",
+    "cancel": "Cancel",
+    "confirm": "Confirm"
   },
   "language": {
     "label": "Language",
@@ -356,7 +359,25 @@
     "disabled": "Disabled",
     "resetPassword": "Reset password",
     "enable": "Enable",
-    "disable": "Disable"
+    "disable": "Disable",
+    "seedTitle": "Data Seeder",
+    "seedSubtitle": "Generate demo products for QA and calculation checks.",
+    "seedButton": "Seed Test Products",
+    "reseedButton": "Re-seed (Delete & Recreate)",
+    "seedRunning": "Seeding...",
+    "seedConfirmTitle": "Confirm seeding",
+    "seedConfirm": "This will insert demo products. Continue?",
+    "reseedConfirm": "This will delete previous seeded products and recreate demo entries. Continue?",
+    "seedError": "Unable to seed demo products.",
+    "seedInserted": "Inserted: {{count}}",
+    "seedSkipped": "Skipped: {{count}}",
+    "seedDeleted": "Deleted: {{count}}",
+    "seedBatch": "Batch: {{batchId}}",
+    "seedType": "Type",
+    "seedName": "Name",
+    "seedStatus": "Status",
+    "seedWeight": "Weight (kg)",
+    "seedNotes": "Notes"
   },
   "itemDetails": {
     "title": "Item details",

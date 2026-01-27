@@ -1,7 +1,10 @@
 {
   "general": {
     "na": "लागू नहीं",
-    "dash": "—"
+    "dash": "—",
+    "close": "बंद करें",
+    "cancel": "रद्द करें",
+    "confirm": "पुष्टि करें"
   },
   "language": {
     "label": "भाषा",
@@ -356,7 +359,25 @@
     "disabled": "अक्षम",
     "resetPassword": "पासवर्ड रीसेट करें",
     "enable": "सक्रिय करें",
-    "disable": "अक्षम करें"
+    "disable": "अक्षम करें",
+    "seedTitle": "डेटा सीडर",
+    "seedSubtitle": "QA और गणनाओं की जांच के लिए डेमो प्रोडक्ट बनाएं।",
+    "seedButton": "टेस्ट प्रोडक्ट्स सीड करें",
+    "reseedButton": "री-सीड (डिलीट करके फिर बनाएं)",
+    "seedRunning": "सीड किया जा रहा है...",
+    "seedConfirmTitle": "सीडिंग की पुष्टि",
+    "seedConfirm": "यह डेमो प्रोडक्ट जोड़ देगा। जारी रखें?",
+    "reseedConfirm": "यह पुराने सीडेड प्रोडक्ट हटाकर नए डेमो एंट्री बनाएगा। जारी रखें?",
+    "seedError": "डेमो प्रोडक्ट सीड नहीं हो सके।",
+    "seedInserted": "जोड़े गए: {{count}}",
+    "seedSkipped": "छोड़े गए: {{count}}",
+    "seedDeleted": "हटाए गए: {{count}}",
+    "seedBatch": "बैच: {{batchId}}",
+    "seedType": "प्रकार",
+    "seedName": "नाम",
+    "seedStatus": "स्थिति",
+    "seedWeight": "वजन (kg)",
+    "seedNotes": "नोट्स"
   },
   "itemDetails": {
     "title": "आइटम विवरण",

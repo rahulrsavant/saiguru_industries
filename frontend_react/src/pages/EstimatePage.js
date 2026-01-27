@@ -4,6 +4,9 @@ import ReceiptPreview from '../components/ReceiptPreview';
 import ViewEstimateItemModal from '../components/ViewEstimateItemModal';
 import useGlossaryTranslation from '../i18n/useGlossaryTranslation';
 import { formatDimensionsSummary, translateShapeLabel } from '../i18n/catalog';
+import { useAuth } from '../context/AuthContext';
+import { API_BASE_URL } from '../utils/apiConfig';
+import { authFetch } from '../utils/authFetch';
 import {
   createNewEstimateSession,
   getSettings,
@@ -55,11 +58,17 @@ const normalizeDimensions = (dimensions) => {
 
 const EstimatePage = () => {
   const { t, i18n } = useGlossaryTranslation();
+  const { user } = useAuth();
   const [session, setSession] = useState(buildEmptySession);
   const [customerErrors, setCustomerErrors] = useState({});
   const [settings, setSettings] = useState(getSettings());
   const [viewingItem, setViewingItem] = useState(null);
   const [editingItemId, setEditingItemId] = useState(null);
+  const [seedSummary, setSeedSummary] = useState(null);
+  const [seedErrorKey, setSeedErrorKey] = useState('');
+  const [isSeeding, setIsSeeding] = useState(false);
+  const [confirmMode, setConfirmMode] = useState('');
+  const [catalogRefreshToken, setCatalogRefreshToken] = useState(0);
 
   useEffect(() => {
     persistCurrentEstimateSession(session);
@@ -225,11 +234,35 @@ const EstimatePage = () => {
     });
   };
 
+  const handleSeed = async (mode) => {
+    setIsSeeding(true);
+    setSeedErrorKey('');
+    setSeedSummary(null);
+    try {
+      const response = await authFetch(`${API_BASE_URL}/api/admin/seed/products`, {
+        method: 'POST',
+        body: JSON.stringify({ mode }),
+      });
+      if (!response.ok) {
+        setSeedErrorKey('admin.seedError');
+        return;
+      }
+      const data = await response.json();
+      setSeedSummary(data);
+      setCatalogRefreshToken((prev) => prev + 1);
+    } catch (err) {
+      setSeedErrorKey('admin.seedError');
+    } finally {
+      setIsSeeding(false);
+    }
+  };
+
   const items = session.items || [];
   const totals = session.totals || calculateTotals(items);
   const isCustomerMissing = !session.customer.name.trim() || !session.customer.mobile.trim();
   const canPrint = items.length > 0;
   const unitSystemLabel = settings.unitSystem === 'imperial' ? t('settings.imperial') : t('settings.metric');
+  const isAdmin = user?.role === 'ADMIN';
   const handlePrint = () => {
     if (!canPrint) return;
     const originalTitle = document.title;
@@ -338,12 +371,44 @@ const EstimatePage = () => {
         </div>
       </section>
 
+      {isAdmin ? (
+        <section className="admin-seed-panel">
+          <div className="admin-header">
+            <h2>{t('admin.seedTitle')}</h2>
+            <p>{t('admin.seedSubtitle')}</p>
+          </div>
+          <div className="admin-seed-actions">
+            <button type="button" className="secondary" onClick={() => setConfirmMode('seed')}>
+              {t('admin.seedButton')}
+            </button>
+            <button type="button" className="secondary" onClick={() => setConfirmMode('reseed')}>
+              {t('admin.reseedButton')}
+            </button>
+            {isSeeding ? <span className="helper-text">{t('admin.seedRunning')}</span> : null}
+          </div>
+
+          {seedErrorKey ? <div className="error-box">{t(seedErrorKey)}</div> : null}
+
+          {seedSummary ? (
+            <div className="admin-seed-summary">
+              <div className="admin-seed-metrics">
+                <span>{t('admin.seedInserted', { count: seedSummary.inserted })}</span>
+                <span>{t('admin.seedSkipped', { count: seedSummary.skipped })}</span>
+                <span>{t('admin.seedDeleted', { count: seedSummary.deleted })}</span>
+                <span>{t('admin.seedBatch', { batchId: seedSummary.batchId })}</span>
+              </div>
+            </div>
+          ) : null}
+        </section>
+      ) : null}
+
       <Calculator
         estimateNo={session.estimateNo}
         settings={settings}
         onAddLineItem={handleAddLineItem}
         validateCustomer={validateCustomer}
         prefillItem={editingItem}
+        refreshToken={catalogRefreshToken}
       />
 
       <section className="estimate-items">
@@ -472,6 +537,46 @@ const EstimatePage = () => {
           <ReceiptPreview session={session} />
         </div>
       </section>
+
+      {confirmMode ? (
+        <div className="modal-overlay" role="dialog" aria-modal="true">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h3>{t('admin.seedConfirmTitle')}</h3>
+              <button
+                type="button"
+                className="icon-button"
+                onClick={() => setConfirmMode('')}
+                title={t('general.close')}
+                aria-label={t('general.close')}
+              >
+                ✕
+              </button>
+            </div>
+            <div className="modal-body">
+              <p>
+                {confirmMode === 'reseed' ? t('admin.reseedConfirm') : t('admin.seedConfirm')}
+              </p>
+            </div>
+            <div className="modal-footer">
+              <button type="button" className="secondary" onClick={() => setConfirmMode('')}>
+                {t('general.cancel')}
+              </button>
+              <button
+                type="button"
+                className="primary"
+                onClick={() => {
+                  const mode = confirmMode;
+                  setConfirmMode('');
+                  handleSeed(mode);
+                }}
+              >
+                {t('general.confirm')}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </main>
   );
 };

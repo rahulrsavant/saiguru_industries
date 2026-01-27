@@ -9,3 +9,20 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 CREATE INDEX IF NOT EXISTS idx_users_username ON users (username);
+
+CREATE TABLE IF NOT EXISTS seeded_products (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  product_type VARCHAR(100) NOT NULL,
+  display_name VARCHAR(255) NOT NULL,
+  calculator_id VARCHAR(120) NOT NULL,
+  metal_id VARCHAR(100) NOT NULL,
+  alloy_id VARCHAR(100) NOT NULL,
+  dimensions_json CLOB NOT NULL,
+  price_per_kg DECIMAL(10, 2),
+  created_by VARCHAR(120) NOT NULL,
+  is_seeded BOOLEAN NOT NULL DEFAULT TRUE,
+  seed_batch_id VARCHAR(120) NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_seeded_products_seeded ON seeded_products (is_seeded);

@@ -215,7 +215,7 @@ const buildDimensionsPayload = (calculator, dimensions) => {
   }, {});
 };
 
-const Calculator = ({ estimateNo, settings, onAddLineItem, validateCustomer, prefillItem }) => {
+const Calculator = ({ estimateNo, settings, onAddLineItem, validateCustomer, prefillItem, refreshToken }) => {
   const { t, i18n } = useGlossaryTranslation();
   const [catalog, setCatalog] = useState(null);
   const [catalogErrorKey, setCatalogErrorKey] = useState('');
@@ -275,7 +275,7 @@ const Calculator = ({ estimateNo, settings, onAddLineItem, validateCustomer, pre
 
     fetchCatalog();
     fetchDensityCatalog();
-  }, []);
+  }, [refreshToken]);
 
   useEffect(() => {
     if (!prefillItem || !catalog || !densityCatalog) return;
