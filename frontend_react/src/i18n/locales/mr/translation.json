@@ -369,6 +369,8 @@
     "seedConfirm": "हे डेमो प्रॉडक्ट्स जोडेल. सुरू ठेवायचे?",
     "reseedConfirm": "हे जुने सीडेड प्रॉडक्ट्स हटवून नवीन डेमो नोंदी तयार करेल. सुरू ठेवायचे?",
     "seedError": "डेमो प्रॉडक्ट्स सीड करता आले नाहीत.",
+    "seedPartialError": "सीडिंग पूर्ण झाली पण काही त्रुटी होत्या. खालील निकाल पाहा.",
+    "seedSuccess": "सीडर यशस्वीपणे पूर्ण झाला.",
     "seedInserted": "जोडलेले: {{count}}",
     "seedSkipped": "वगळलेले: {{count}}",
     "seedDeleted": "हटवलेले: {{count}}",
@@ -377,7 +379,13 @@
     "seedName": "नाव",
     "seedStatus": "स्थिती",
     "seedWeight": "वजन (kg)",
-    "seedNotes": "नोट्स"
+    "seedNotes": "नोट्स",
+    "seedErrorLabel": "त्रुटी",
+    "seedEstimateNo": "अंदाज: {{estimateNo}}",
+    "seedEstimateInserted": "आयटम जोडले: {{count}}",
+    "seedEstimateSkipped": "आयटम वगळले: {{count}}",
+    "seedEstimateDeleted": "आयटम हटवले: {{count}}",
+    "seedEstimateOpen": "सीडेड अंदाज उघडा"
   },
   "itemDetails": {
     "title": "आयटम तपशील",

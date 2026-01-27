@@ -6,13 +6,21 @@ import com.saiguru.backend.calculator.model.CalculationMode;
 import com.saiguru.backend.calculator.model.CalculationRequestV2;
 import com.saiguru.backend.calculator.model.DimensionInput;
 import com.saiguru.backend.calculator.service.CalculationEngineService;
-import com.saiguru.backend.calculator.model.ValidationException;
-
+import com.saiguru.backend.estimate.Estimate;
+import com.saiguru.backend.estimate.EstimateItem;
+import com.saiguru.backend.estimate.EstimateItemRepository;
+import com.saiguru.backend.estimate.EstimateRepository;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,38 +32,44 @@ public class SeedProductService {
     private static final String MODE_RESEED = "reseed";
 
     private final SeededProductRepository repository;
+    private final EstimateRepository estimateRepository;
+    private final EstimateItemRepository estimateItemRepository;
     private final CalculationEngineService calculationEngineService;
     private final ObjectMapper objectMapper;
 
     public SeedProductService(
         SeededProductRepository repository,
+        EstimateRepository estimateRepository,
+        EstimateItemRepository estimateItemRepository,
         CalculationEngineService calculationEngineService,
         ObjectMapper objectMapper
     ) {
         this.repository = repository;
+        this.estimateRepository = estimateRepository;
+        this.estimateItemRepository = estimateItemRepository;
         this.calculationEngineService = calculationEngineService;
         this.objectMapper = objectMapper;
     }
 
     @Transactional
-    public SeedProductResponse seedProducts(SeedProductRequest request) {
+    public SeedAllResponse seedProducts(SeedProductRequest request, String username) {
         String mode = request != null ? request.getMode() : null;
         if (mode == null || mode.isBlank()) {
             mode = MODE_SEED;
         }
         mode = mode.toLowerCase(Locale.ROOT);
-        if (!MODE_SEED.equals(mode) && !MODE_RESEED.equals(mode)) {
-            throw new ValidationException("Mode must be seed or reseed.", "mode");
-        }
 
+        String batchId = resolveBatchId(request);
         SeedProductResponse response = new SeedProductResponse();
-        response.setBatchId(resolveBatchId(request));
+        response.setBatchId(batchId);
 
-        if (MODE_SEED.equals(mode) && repository.existsBySeededTrue()) {
-            int skipped = Math.toIntExact(repository.countBySeededTrue());
-            response.setSkipped(skipped);
-            response.getErrors().add("Already seeded. Use 'Re-seed' to recreate.");
-            return response;
+        if (!MODE_SEED.equals(mode) && !MODE_RESEED.equals(mode)) {
+            response.getErrors().add("Mode must be seed or reseed.");
+            SeedAllResponse wrapper = new SeedAllResponse();
+            wrapper.setBatchId(batchId);
+            wrapper.setProducts(response);
+            wrapper.setMessage("Invalid mode.");
+            return wrapper;
         }
 
         if (MODE_RESEED.equals(mode)) {
@@ -65,8 +79,29 @@ public class SeedProductService {
 
         List<SeedDefinition> definitions = buildSeedDefinitions();
         int inserted = 0;
+        int skipped = 0;
+        Map<String, SeededProduct> seededLookup = new LinkedHashMap<>();
         for (SeedDefinition definition : definitions) {
             try {
+                if (MODE_SEED.equals(mode)) {
+                    Optional<SeededProduct> existing = repository.findBySeededTrueAndProductTypeAndDisplayName(
+                        definition.productType,
+                        definition.displayName
+                    );
+                    if (existing.isPresent()) {
+                        seededLookup.put(definition.productType + "|" + definition.displayName, existing.get());
+                        skipped += 1;
+                        response.getItems().add(new SeedProductResult(
+                            definition.productType,
+                            definition.displayName,
+                            String.valueOf(existing.get().getId()),
+                            null,
+                            "SKIPPED",
+                            null
+                        ));
+                        continue;
+                    }
+                }
                 double weightKg = calculateWeight(definition);
                 SeededProduct entity = new SeededProduct();
                 entity.setProductType(definition.productType);
@@ -81,6 +116,7 @@ public class SeedProductService {
                 entity.setSeedBatchId(response.getBatchId());
                 entity.setCreatedAt(Instant.now());
                 SeededProduct saved = repository.save(entity);
+                seededLookup.put(definition.productType + "|" + definition.displayName, saved);
                 inserted += 1;
                 response.getItems().add(new SeedProductResult(
                     definition.productType,
@@ -104,6 +140,24 @@ public class SeedProductService {
         }
 
         response.setInserted(inserted);
+        response.setSkipped(skipped);
+        SeedEstimateSummary estimateSummary = seedDemoEstimate(username, mode, batchId, definitions, seededLookup);
+
+        SeedAllResponse wrapper = new SeedAllResponse();
+        wrapper.setBatchId(batchId);
+        wrapper.setProducts(response);
+        wrapper.setEstimate(estimateSummary);
+        wrapper.setMessage(response.getErrors().isEmpty() ? "Seed completed." : "Seed completed with errors.");
+        return wrapper;
+    }
+
+    public SeedProductStatusResponse getSeedStatus() {
+        SeedProductStatusResponse response = new SeedProductStatusResponse();
+        response.setTotalSeededCount(repository.countBySeededTrue());
+        repository.findTopBySeededTrueOrderByCreatedAtDesc().ifPresent((latest) -> {
+            response.setLastBatchId(latest.getSeedBatchId());
+            response.setLastSeededAt(latest.getCreatedAt());
+        });
         return response;
     }
 
@@ -112,7 +166,7 @@ public class SeedProductService {
         request.setCalculatorId(definition.calculatorId);
         request.setMetal(definition.metalId);
         request.setAlloy(definition.alloyId);
-        request.setPiecesOrQty(1.0);
+        request.setPiecesOrQty(definition.pieces);
         request.setMode(CalculationMode.QTY_TO_WEIGHT);
         request.setDimensions(definition.dimensions);
         var result = calculationEngineService.calculate(request);
@@ -132,6 +186,118 @@ public class SeedProductService {
         } catch (JsonProcessingException exception) {
             throw new IllegalStateException("Unable to serialize dimensions.", exception);
         }
+    }
+
+    private SeedEstimateSummary seedDemoEstimate(
+        String username,
+        String mode,
+        String batchId,
+        List<SeedDefinition> definitions,
+        Map<String, SeededProduct> productLookup
+    ) {
+        SeedEstimateSummary summary = new SeedEstimateSummary();
+        String owner = (username == null || username.isBlank()) ? "system" : username;
+
+        if (MODE_RESEED.equals(mode)) {
+            int deletedItems = Math.toIntExact(estimateItemRepository.deleteBySeededDemoTrue());
+            estimateRepository.deleteBySeededDemoTrue();
+            summary.setItemsDeleted(deletedItems);
+        }
+
+        Estimate estimate = estimateRepository.findTopBySeededDemoTrueAndCreatedByOrderByCreatedAtDesc(owner).orElse(null);
+        if (estimate == null) {
+            estimate = new Estimate();
+            estimate.setEstimateNo(buildEstimateNo());
+            estimate.setCustomerName("Test Customer");
+            estimate.setBusinessName("Test Business");
+            estimate.setMobile("9999999999");
+            estimate.setEmail("test@example.com");
+            estimate.setCreatedBy(owner);
+            estimate.setSeededDemo(true);
+            estimate = estimateRepository.save(estimate);
+        }
+
+        summary.setEstimateId(estimate.getId());
+        summary.setEstimateNo(estimate.getEstimateNo());
+
+        int itemsInserted = 0;
+        int itemsSkipped = 0;
+        for (SeedDefinition definition : definitions) {
+            SeededProduct seededProduct = productLookup.get(definition.productType + "|" + definition.displayName);
+            Optional<EstimateItem> existing = Optional.empty();
+            if (seededProduct != null) {
+                existing = estimateItemRepository.findByEstimateIdAndProductRefId(estimate.getId(), seededProduct.getId());
+            }
+            if (existing.isEmpty()) {
+                existing = estimateItemRepository.findByEstimateIdAndProductTypeAndDisplayName(
+                    estimate.getId(),
+                    definition.productType,
+                    definition.displayName
+                );
+            }
+            if (existing.isPresent()) {
+                itemsSkipped += 1;
+                continue;
+            }
+
+            double weightKg = calculateWeight(definition);
+            EstimateItem item = new EstimateItem();
+            item.setEstimate(estimate);
+            item.setProductType(definition.productType);
+            item.setDisplayName(definition.displayName);
+            item.setShapeCalculatorId(definition.calculatorId);
+            item.setMetalId(definition.metalId);
+            item.setAlloyId(definition.alloyId);
+            item.setPieces(definition.pieces.intValue());
+            item.setMode(CalculationMode.QTY_TO_WEIGHT.name());
+            item.setUnitSystem(inferUnitSystem(definition.dimensions));
+            item.setDimensionsJson(writeDimensionMap(definition.dimensions));
+            item.setResultKg(BigDecimal.valueOf(weightKg).setScale(3, RoundingMode.HALF_UP));
+            item.setProductRefId(seededProduct != null ? seededProduct.getId() : null);
+            item.setSeededDemo(true);
+            estimateItemRepository.save(item);
+            itemsInserted += 1;
+        }
+
+        summary.setItemsInserted(itemsInserted);
+        summary.setItemsSkipped(itemsSkipped);
+        return summary;
+    }
+
+    private String writeDimensionMap(List<DimensionInput> dimensions) {
+        Map<String, Map<String, Object>> map = new LinkedHashMap<>();
+        for (DimensionInput input : dimensions) {
+            Map<String, Object> value = new LinkedHashMap<>();
+            value.put("value", input.getValue());
+            value.put("unit", input.getUnit());
+            map.put(input.getKey(), value);
+        }
+        try {
+            return objectMapper.writeValueAsString(map);
+        } catch (JsonProcessingException exception) {
+            throw new IllegalStateException("Unable to serialize dimensions.", exception);
+        }
+    }
+
+    private String inferUnitSystem(List<DimensionInput> dimensions) {
+        for (DimensionInput input : dimensions) {
+            String unit = input.getUnit();
+            if (unit == null) continue;
+            String normalized = unit.toLowerCase(Locale.ROOT);
+            if ("in".equals(normalized) || "ft".equals(normalized)) {
+                return "imperial";
+            }
+        }
+        return "metric";
+    }
+
+    private String buildEstimateNo() {
+        Instant now = Instant.now();
+        String date = DateTimeFormatter.ofPattern("ddMMyyyy")
+            .withZone(ZoneId.of("Asia/Kolkata"))
+            .format(now);
+        long timestamp = now.toEpochMilli();
+        return "SI" + date + timestamp + "/00001";
     }
 
     private List<SeedDefinition> buildSeedDefinitions() {
@@ -482,6 +648,7 @@ public class SeedProductService {
         private final String alloyId;
         private final List<DimensionInput> dimensions;
         private final BigDecimal pricePerKg;
+        private final Double pieces;
 
         private SeedDefinition(
             String productType,
@@ -499,6 +666,7 @@ public class SeedProductService {
             this.alloyId = alloyId;
             this.dimensions = dimensions;
             this.pricePerKg = pricePerKg;
+            this.pieces = 1.0;
         }
 
     }

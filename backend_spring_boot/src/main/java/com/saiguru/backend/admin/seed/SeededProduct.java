@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.Lob;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
@@ -13,7 +14,13 @@ import java.math.BigDecimal;
 import java.time.Instant;
 
 @Entity
-@Table(name = "seeded_products")
+@Table(
+    name = "seeded_products",
+    indexes = {
+        @Index(name = "idx_seeded_products_lookup", columnList = "is_seeded,product_type,display_name"),
+        @Index(name = "idx_seeded_products_batch", columnList = "seed_batch_id")
+    }
+)
 public class SeededProduct {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

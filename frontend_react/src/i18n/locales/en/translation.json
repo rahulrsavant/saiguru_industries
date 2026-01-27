@@ -369,6 +369,8 @@
     "seedConfirm": "This will insert demo products. Continue?",
     "reseedConfirm": "This will delete previous seeded products and recreate demo entries. Continue?",
     "seedError": "Unable to seed demo products.",
+    "seedPartialError": "Seeding completed with some errors. Review the results below.",
+    "seedSuccess": "Seeder completed successfully.",
     "seedInserted": "Inserted: {{count}}",
     "seedSkipped": "Skipped: {{count}}",
     "seedDeleted": "Deleted: {{count}}",
@@ -377,7 +379,13 @@
     "seedName": "Name",
     "seedStatus": "Status",
     "seedWeight": "Weight (kg)",
-    "seedNotes": "Notes"
+    "seedNotes": "Notes",
+    "seedErrorLabel": "Error",
+    "seedEstimateNo": "Estimate: {{estimateNo}}",
+    "seedEstimateInserted": "Estimate items inserted: {{count}}",
+    "seedEstimateSkipped": "Estimate items skipped: {{count}}",
+    "seedEstimateDeleted": "Estimate items deleted: {{count}}",
+    "seedEstimateOpen": "Open seeded estimate"
   },
   "itemDetails": {
     "title": "Item details",
